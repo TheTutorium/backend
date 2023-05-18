@@ -15,7 +15,7 @@ def create(
     ):
         raise Exception
 
-    whiteboard = Schema.Course(
+    whiteboard = Schema.Whiteboard(
         **whiteboard_create.dict(),
         created_at=date.today(),
     )
@@ -37,6 +37,6 @@ def get_by_booking_id(db: Session, booking_id: int, user_id: str):
         .first()
     )
     if whiteboard is None:
-        return Exception
+        raise Exception
 
     return whiteboard

@@ -46,9 +46,12 @@ def get_all_by_course(db: Session, course_id: int):
         db.query(Schema.Review)
         .filter(
             Schema.Review.booking_id.in_(
-                db.query(Schema.Booking)
-                .filter(Schema.Booking.course_id == course_id)
-                .all()
+                [
+                    booking.id
+                    for booking in db.query(Schema.Booking)
+                    .filter(Schema.Booking.course_id == course_id)
+                    .all()
+                ]
             )
         )
         .all()
