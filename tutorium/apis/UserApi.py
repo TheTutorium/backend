@@ -36,12 +36,11 @@ def get_detailed(
     return user
 
 
-@user_api_router.get("/tutors/", response_model=list[UserModel.PublicUserRead])
+@user_api_router.get("/all-tutors/", response_model=list[UserModel.PublicUserRead])
 def get_all_tutors(
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    print("@@@")
     users = UserManager.get_all_tutors(db)
     return users
 
@@ -62,7 +61,7 @@ def update(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    updated_user = UserManager.update_user(db, user_id=user_id, user_update=user_update)
+    updated_user = UserManager.update(db, user_id=user_id, user_update=user_update)
     return updated_user
 
 

@@ -25,3 +25,9 @@ class ReviewCreate(ReviewBase):
 
 class ReviewRead(Review):
     pass
+
+
+class ReviewUpdate(BaseModel):
+    comment: str | None = None
+    id: int
+    rating: int | None = None

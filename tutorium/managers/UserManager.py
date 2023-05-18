@@ -35,7 +35,7 @@ def is_tutor(db: Session, user_id: str):
     return user.is_tutor
 
 
-def update_user(db: Session, user_id: str, user_update: UserModel.UserUpdate):
+def update(db: Session, user_id: str, user_update: UserModel.UserUpdate):
     user = get(db, user_id=user_id)
     assert user is not None
 

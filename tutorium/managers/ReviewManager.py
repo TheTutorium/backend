@@ -53,3 +53,17 @@ def get_all_by_course(db: Session, course_id: int):
         )
         .all()
     )
+
+
+def update(db: Session, review_update: ReviewModel.ReviewUpdate, student_id: str):
+    review = get(db, review_id=review_update.id)
+    if review.student_id != student_id:
+        raise Exception
+
+    setattr(review, "updated_at", date.today())
+    for attr, value in review_update:
+        if value is not None:
+            setattr(review, attr, value)
+
+    db.commit()
+    return review

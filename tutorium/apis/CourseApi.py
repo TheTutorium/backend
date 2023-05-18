@@ -29,16 +29,6 @@ async def delete(
     return CourseManager.delete(db, course_id=course_id, tutor_id=user_id)
 
 
-@course_api_router.get("/{course_id}/", response_model=CourseModel.CourseRead)
-def get(
-    course_id: int,
-    db: Session = Depends(get_db),
-    _: Any = Depends(authenticate),
-):
-    course = CourseManager.get(db, course_id=course_id)
-    return course
-
-
 @course_api_router.get("/all/", response_model=list[CourseModel.CourseRead])
 def get_all(
     db: Session = Depends(get_db),
@@ -58,3 +48,13 @@ def get_all_by_tutor(
 ):
     courses = CourseManager.get_all_by_tutor(db, tutor_id=tutor_id)
     return courses
+
+
+@course_api_router.get("/{course_id}/", response_model=CourseModel.CourseRead)
+def get(
+    course_id: int,
+    db: Session = Depends(get_db),
+    _: Any = Depends(authenticate),
+):
+    course = CourseManager.get(db, course_id=course_id)
+    return course
