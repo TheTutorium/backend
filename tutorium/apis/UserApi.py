@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from ..database.Database import get_db
 from ..managers import UserManager
 from ..models import UserModel
-from .Middlewares import authenticate
+from ..utils.Middleware import authenticate
 
 user_api_router = APIRouter(prefix="/users", tags=["users"])
 

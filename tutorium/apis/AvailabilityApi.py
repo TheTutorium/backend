@@ -1,4 +1,4 @@
-from datetime import date, datetime, timedelta
+from datetime import datetime
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -6,18 +6,16 @@ from pytz import timezone
 from sqlalchemy.orm import Session
 
 from ..database.Database import Base, SessionLocal, engine, get_db
-from ..managers.AvaManager import (
+from ..managers.AvailabilityManager import (
     check_availability,
     create_availability,
     get_availabilities,
     get_availability,
 )
-from ..managers.EventManager import (
-    create_event_with_availability_check,
-    get_event,
-    get_events,
+from ..models.AvaibilityModel import (
+    Availability,
+    AvailabilityCreate,
 )
-from ..models.CalModel import Availability, AvailabilityCreate, Event, EventCreate
 
 cal_api_router = APIRouter(prefix="/cal", tags=["cal"])
 
@@ -33,23 +31,11 @@ def create_ava(availability: AvailabilityCreate, db: Session = Depends(get_db)):
     return create_availability(db=db, availability=availability)
 
 
-@cal_api_router.get("/events", response_model=List[Event])
-def read_events(db: Session = Depends(get_db)):
-    events = get_events(db)
-    return events
-
-
 @cal_api_router.get("/check_availability")
 async def check_availability_route(
     tutor_id: str, datetime_instance: datetime, db: Session = Depends(get_db)
 ):
     return check_availability(db, tutor_id, datetime_instance)
-
-
-@cal_api_router.post("/events", response_model=Event)
-def create_event_route(event: EventCreate, db: Session = Depends(get_db)):
-    event.tutor_id = "user_2PvrGmsFXg61YQWKiLEEiJw88k6"
-    return create_event_with_availability_check(db=db, event=event)
 
 
 @cal_api_router.put("/availabilities/{availability_id}", response_model=Availability)

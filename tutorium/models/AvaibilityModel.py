@@ -1,11 +1,10 @@
-from datetime import datetime, time
 from enum import Enum
 from typing import List
 
 from pydantic import BaseModel
 
 
-class DayOfWeek(str, Enum):
+class DAYS(str, Enum):
     Monday = "Monday"
     Tuesday = "Tuesday"
     Wednesday = "Wednesday"
@@ -36,23 +35,6 @@ class AvailabilityCreate(AvailabilityBase):
 class Availability(AvailabilityBase):
     id: int
     availability: List[AvailabilityDay]
-
-    class Config:
-        orm_mode = True
-
-
-class EventBase(BaseModel):
-    tutor_id: str
-    start_time: datetime
-    end_time: datetime
-
-
-class EventCreate(EventBase):
-    pass
-
-
-class Event(EventBase):
-    id: int
 
     class Config:
         orm_mode = True

@@ -3,28 +3,28 @@ from datetime import datetime, time
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from ..database import Schemas
-from ..models import CalModel
+from ..database import Schema
+from ..models import AvaibilityModel
 
 
 def get_availability(db: Session, availability_id: int):
     return (
-        db.query(Schemas.Availability)
-        .filter(Schemas.Availability.id == availability_id)
+        db.query(Schema.Availability)
+        .filter(Schema.Availability.id == availability_id)
         .first()
     )
 
 
 def get_availabilities(db: Session, tutor_id: str):
     return (
-        db.query(Schemas.Availability)
-        .filter(Schemas.Availability.tutor_id == tutor_id)
+        db.query(Schema.Availability)
+        .filter(Schema.Availability.tutor_id == tutor_id)
         .all()
     )
 
 
-def create_availability(db: Session, availability: CalModel.AvailabilityCreate):
-    db_availability = Schemas.Availability(**availability.dict())
+def create_availability(db: Session, availability: AvaibilityModel.AvailabilityCreate):
+    db_availability = Schema.Availability(**availability.dict())
     db.add(db_availability)
     db.commit()
     db.refresh(db_availability)

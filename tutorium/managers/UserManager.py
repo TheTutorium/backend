@@ -1,11 +1,11 @@
 from sqlalchemy.orm import Session
 
-from ..database import Schemas
+from ..database import Schema
 from ..models import UserModel
 
 
 def create_user(db: Session, user: UserModel.UserCreate):
-    db_user = Schemas.User(
+    db_user = Schema.User(
         created_at=user.created_at,
         email=user.email,
         first_name=user.first_name,
@@ -21,11 +21,11 @@ def create_user(db: Session, user: UserModel.UserCreate):
 
 
 def get_user(db: Session, user_id: str):
-    return db.query(Schemas.User).filter(Schemas.User.id == user_id).first()  # type: ignore
+    return db.query(Schema.User).filter(Schema.User.id == user_id).first()  # type: ignore
 
 
 def get_users(db: Session):
-    return db.query(Schemas.User).all()
+    return db.query(Schema.User).all()
 
 
 def update_user(db: Session, user_id: str, user_update: UserModel.UserUpdate):
