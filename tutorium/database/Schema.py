@@ -36,7 +36,7 @@ class Course(Base):
     name = Column(String(255))
     updated_at = Column(Date)
 
-    tutor_id = Column(Integer)
+    tutor_id = Column(String(255))
 
 
 class Review(Base):

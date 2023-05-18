@@ -6,12 +6,12 @@ from pydantic import BaseModel
 class CourseBase(BaseModel):
     description: str
     duration: int
-    id: int
     name: str
 
 
 class Course(CourseBase):
     created_at: date
+    id: int
     updated_at: date
     tutor_id: str
 
