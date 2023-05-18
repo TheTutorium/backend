@@ -19,7 +19,11 @@ def create(db: Session, user_create: UserModel.UserCreate):
 
 
 def get(db: Session, user_id: str):
-    return db.query(Schema.User).filter(Schema.User.id == user_id).first()
+    user = db.query(Schema.User).filter(Schema.User.id == user_id).first()
+    if user is None:
+        raise Exception
+
+    return user
 
 
 def get_all_tutors(db: Session):
@@ -28,8 +32,6 @@ def get_all_tutors(db: Session):
 
 def is_tutor(db: Session, user_id: str):
     user = get(db, user_id=user_id)
-    assert user is not None
-
     return user.is_tutor
 
 

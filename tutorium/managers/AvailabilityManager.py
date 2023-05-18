@@ -10,7 +10,8 @@ def create(
     availability_create: AvailabilityModel.AvailabilityCreate,
     tutor_id: str,
 ):
-    assert UserManager.is_tutor(db, user_id=tutor_id)
+    if not UserManager.is_tutor(db, user_id=tutor_id):
+        raise Exception
 
     availability = Schema.Availability(**availability_create.dict(), tutor_id=tutor_id)
     db.add(availability)
@@ -19,9 +20,7 @@ def create(
     return availability
 
 
-def get_all_of_tutor(db: Session, tutor_id: str):
-    assert UserManager.is_tutor(db, user_id=tutor_id)
-
+def get_all_by_tutor(db: Session, tutor_id: str):
     return (
         db.query(Schema.Availability)
         .filter(Schema.Availability.tutor_id == tutor_id)

@@ -23,12 +23,12 @@ def create(
 
 
 @availability_api_router.get(
-    "/by-tutor/{tutor_id}/", response_model=List[AvailabilityModel.AvailabilityRead]
+    "/all-by-tutor/{tutor_id}/", response_model=List[AvailabilityModel.AvailabilityRead]
 )
-def get_all_of_tutor(
+def get_all_by_tutor(
     tutor_id: str,
     db: Session = Depends(get_db),
     _: str = Depends(authenticate),
 ):
-    availabilities = AvailabilityManager.get_all_of_tutor(db, tutor_id=tutor_id)
+    availabilities = AvailabilityManager.get_all_by_tutor(db, tutor_id=tutor_id)
     return availabilities

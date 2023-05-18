@@ -8,7 +8,8 @@ from ..models import BookingModel
 
 
 def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: str):
-    assert not UserManager.is_tutor(db, user_id=student_id)
+    if UserManager.is_tutor(db, user_id=student_id):
+        raise Exception
 
     booking = Schema.Booking(
         **booking_create.dict(),
@@ -21,7 +22,24 @@ def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: 
     return booking
 
 
-def get_all_of_user(db: Session, user_id: str):
+def delete(db: Session, booking_id: int, user_id: str):
+    if not is_user_in_booking(db, booking_id=booking_id, user_id=user_id):
+        raise Exception
+
+    booking = get(db, booking_id=booking_id)
+    db.delete(booking)
+    db.commit()
+
+
+def get(db: Session, booking_id: int):
+    booking = db.query(Schema.Booking).filter(Schema.Booking.id == booking_id).first()
+    if booking is None:
+        raise Exception
+
+    return booking
+
+
+def get_all_by_user(db: Session, user_id: str):
     if UserManager.is_tutor(db, user_id=user_id):
         return (
             db.query(Schema.Booking)
@@ -38,3 +56,14 @@ def get_all_of_user(db: Session, user_id: str):
         return (
             db.query(Schema.Booking).filter(Schema.Booking.student_id == user_id).all()
         )
+
+
+def is_user_in_booking(db: Session, booking_id: int, user_id: str):
+    bookings = get_all_by_user(db, user_id=user_id)
+
+    booking = None
+    for b in bookings:
+        if b.id == booking_id:
+            booking = b
+
+    return booking is not None
