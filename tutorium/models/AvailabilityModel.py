@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel
 
 
-class DAYS(str, Enum):
+class Day(str, Enum):
     Monday = "Monday"
     Tuesday = "Tuesday"
     Wednesday = "Wednesday"
@@ -14,13 +14,18 @@ class DAYS(str, Enum):
     Sunday = "Sunday"
 
 
+class Time(BaseModel):
+    hour: int
+    minute: int
+
+
 class TimeSlot(BaseModel):
-    start_time: str
-    end_time: str
+    start_time: Time
+    end_time: Time
 
 
 class AvailabilityDay(BaseModel):
-    day: str
+    day: Day
     time_slots: List[TimeSlot]
 
 
@@ -29,7 +34,6 @@ class AvailabilityBase(BaseModel):
 
 
 class Availability(AvailabilityBase):
-    availability: List[AvailabilityDay]
     id: int
     tutor_id: str
 
