@@ -11,7 +11,7 @@ from ..database.Database import get_db
 from ..managers import UserManager
 from ..models import UserModel
 
-user_api_router = APIRouter(prefix="/users")
+user_api_router = APIRouter(prefix="/users", tags=["users"])
 
 
 class WebhookUser(BaseModel):
@@ -66,7 +66,7 @@ async def is_tutor(request: Request, db: Session = Depends(get_db)):
 
 
 @user_api_router.get("/{user_id}", response_model=UserModel.User)
-def read_user(user_id: int, db: Session = Depends(get_db)):
+def read_user(user_id: str, db: Session = Depends(get_db)):
     db_user = UserManager.get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")

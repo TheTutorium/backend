@@ -4,7 +4,7 @@ from ..database import Schemas
 from ..models import UserModel
 
 
-def get_user(db: Session, user_id: int):
+def get_user(db: Session, user_id: str):
     return db.query(Schemas.User).filter(Schemas.User.id == user_id).first()  # type: ignore
 
 

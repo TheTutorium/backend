@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from tutorium.apis.UserApi import user_api_router
+from tutorium.apis.CalApi import cal_api_router
 from tutorium.database import Database, Schemas
 
 app = FastAPI()
@@ -14,6 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(user_api_router)
+app.include_router(cal_api_router)
 
 Schemas.Base.metadata.create_all(bind=Database.engine)
 
