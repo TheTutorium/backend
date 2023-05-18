@@ -1,12 +1,4 @@
-from sqlalchemy import (
-    JSON,
-    Boolean,
-    Column,
-    Date,
-    DateTime,
-    Integer,
-    String,
-)
+from sqlalchemy import JSON, Boolean, Column, Date, DateTime, Integer, String, Text
 
 from .Database import Base
 
@@ -14,9 +6,9 @@ from .Database import Base
 class Availability(Base):
     __tablename__ = "availabilities"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
 
-    availability = Column(JSON, nullable=False)
+    availability = Column(JSON)
 
     tutor_id = Column(String(255))
 
@@ -24,8 +16,9 @@ class Availability(Base):
 class Booking(Base):
     __tablename__ = "bookings"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True)
 
+    created_at = Column(Date)
     end_time = Column(DateTime)
     start_time = Column(DateTime)
 
@@ -38,9 +31,9 @@ class Course(Base):
     id = Column(Integer, primary_key=True)
 
     created_at = Column(Date)
-    description = Column(String(255), nullable=True)
-    duration = Column(Integer, primary_key=True)
-    name = Column(String(255), unique=True)
+    description = Column(String(255))
+    duration = Column(Integer)
+    name = Column(String(255))
     updated_at = Column(Date)
 
     tutor_id = Column(Integer)
@@ -51,9 +44,9 @@ class Review(Base):
 
     id = Column(Integer, primary_key=True)
 
-    comment = Column(String(255), nullable=True)
+    comment = Column(String(255))
     created_at = Column(Date)
-    rating = Column(Integer, primary_key=True)
+    rating = Column(Integer)
     updated_at = Column(Date)
 
     booking_id = Column(Integer)
@@ -79,8 +72,8 @@ class Whiteboard(Base):
 
     id = Column(Integer, primary_key=True)
 
-    content = Column(String(134217728), nullable=True)
+    content = Column(Text(134217728))
     created_at = Column(DateTime)
-    rating = Column(Integer, primary_key=True)
+    rating = Column(Integer)
 
     booking_id = Column(Integer)

@@ -2,8 +2,12 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from tutorium.apis.AvailabilityApi import cal_api_router
+from tutorium.apis.AvailabilityApi import availibility_api_router
+from tutorium.apis.BookingApi import booking_api_router
+from tutorium.apis.CourseApi import course_api_router
+from tutorium.apis.ReviewApi import review_api_router
 from tutorium.apis.UserApi import user_api_router
+from tutorium.apis.WhiteboardApi import whiteboard_api_router
 from tutorium.database import Database, Schema
 
 app = FastAPI()
@@ -14,8 +18,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(availibility_api_router)
+app.include_router(booking_api_router)
+app.include_router(course_api_router)
+app.include_router(review_api_router)
 app.include_router(user_api_router)
-app.include_router(cal_api_router)
+app.include_router(whiteboard_api_router)
 
 Schema.Base.metadata.create_all(bind=Database.engine)
 
