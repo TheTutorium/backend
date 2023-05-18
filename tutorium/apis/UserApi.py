@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -24,16 +23,14 @@ async def is_tutor(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    user = UserManager.get_user(db, user_id=user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+    is_tutor = UserManager.is_tutor(db, user_id=user_id)
     return {
-        "isTutor": user.is_tutor,
+        "isTutor": is_tutor,
     }
 
 
-@user_api_router.get("/details", response_model=UserModel.User)
-def read_detailed_user(
+@user_api_router.get("/detailed", response_model=UserModel.User)
+def read_detailed(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
@@ -44,7 +41,7 @@ def read_detailed_user(
 
 
 @user_api_router.get("/{user_id}", response_model=UserModel.UserRead)
-def read_user(
+def read(
     user_id: str,
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
@@ -56,7 +53,7 @@ def read_user(
 
 
 @user_api_router.get("/", response_model=list[UserModel.User])
-def read_users(
+def read_all(
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
@@ -65,7 +62,7 @@ def read_users(
 
 
 @user_api_router.put("/", response_model=UserModel.User)
-def update_user(
+def update(
     user_update: UserModel.UserUpdate,
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
@@ -80,13 +77,11 @@ async def webhook(weebhook_user: WebhookUser, db: Session = Depends(get_db)):
         return UserManager.create_user(
             db,
             user=UserModel.UserCreate(
-                created_at=datetime.utcnow(),
                 email=weebhook_user.data["email_addresses"][0]["email_address"],
                 first_name=weebhook_user.data["first_name"],
                 id=weebhook_user.data["id"],
                 last_name=weebhook_user.data["last_name"],
                 profile_pic=weebhook_user.data["profile_image_url"],
-                updated_at=datetime.utcnow(),
             ),
         )
     if weebhook_user.type == "user.updated":

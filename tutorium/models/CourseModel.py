@@ -4,15 +4,17 @@ from pydantic import BaseModel
 
 
 class CourseBase(BaseModel):
-    created_at: date
+    description: str
     duration: int
     id: int
     name: str
-    tutor_id: str
-    updated_at: date
 
 
 class Course(CourseBase):
+    created_at: date
+    updated_at: date
+    tutor_id: str
+
     class Config:
         orm_mode = True
 
@@ -21,6 +23,5 @@ class CourseCreate(CourseBase):
     pass
 
 
-class CourseRead(CourseBase):
-    class Config:
-        orm_mode = True
+class CourseRead(Course):
+    pass

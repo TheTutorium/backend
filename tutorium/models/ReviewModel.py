@@ -6,13 +6,14 @@ from pydantic import BaseModel
 class ReviewBase(BaseModel):
     booking_id: int
     comment: str
-    created_at: date
     id: int
     rating: int
-    updated_at: date
 
 
 class Review(ReviewBase):
+    created_at: date
+    updated_at: date
+
     class Config:
         orm_mode = True
 
@@ -21,6 +22,5 @@ class ReviewCreate(ReviewBase):
     pass
 
 
-class ReviewRead(ReviewBase):
-    class Config:
-        orm_mode = True
+class ReviewRead(Review):
+    pass

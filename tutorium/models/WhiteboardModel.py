@@ -6,20 +6,20 @@ from pydantic import BaseModel
 class WhiteboardBase(BaseModel):
     booking_id: int
     content: str
-    created_at: date
     id: int
+
+
+class Whiteboard(WhiteboardBase):
+    created_at: date
     updated_at: date
 
-
-class Review(WhiteboardBase):
     class Config:
         orm_mode = True
 
 
-class ReviewCreate(WhiteboardBase):
+class WhiteboardCreate(WhiteboardBase):
     pass
 
 
-class ReviewRead(WhiteboardBase):
-    class Config:
-        orm_mode = True
+class ReviewRead(Whiteboard):
+    pass
