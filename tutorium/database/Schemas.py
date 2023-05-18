@@ -1,8 +1,11 @@
-from sqlalchemy import Column, Integer, String, Time, Enum, DateTime, Boolean, Date, JSON
-from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
+from sqlalchemy import (JSON, Boolean, Column, Date, DateTime, Enum, Integer,
+                        String, Time)
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+
 from .Database import Base
+
 
 class User(Base):
     __tablename__ = "users"
@@ -17,17 +20,19 @@ class User(Base):
     created_at = Column(Date)
     updated_at = Column(Date)
 
+
 class Availability(Base):
     __tablename__ = "availabilities"
 
     id = Column(Integer, primary_key=True, index=True)
-    tutor_id = Column(String(255)) # No ForeignKey here
+    tutor_id = Column(String(255))  # No ForeignKey here
     availability = Column(JSON, nullable=False)
+
 
 class Event(Base):
     __tablename__ = "events"
 
     id = Column(Integer, primary_key=True, index=True)
-    tutor_id = Column(String(255)) # No ForeignKey here
+    tutor_id = Column(String(255))  # No ForeignKey here
     start_time = Column(DateTime(timezone=True), default=func.now())
     end_time = Column(DateTime(timezone=True), default=func.now())

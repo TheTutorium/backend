@@ -1,15 +1,19 @@
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+
 from ..database import Schemas
 from ..models import CalModel
-from sqlalchemy.orm import Session
-from fastapi import HTTPException
 from .AvaManager import check_availability
+
 
 def get_event(db: Session, event_id: int):
     return db.query(Schemas.Event).filter(Schemas.Event.id == event_id).first()  # type: ignore
 
+
 def get_events(db: Session):
-    tutor_id = 'user_2PvrGmsFXg61YQWKiLEEiJw88k6'
+    tutor_id = "user_2PvrGmsFXg61YQWKiLEEiJw88k6"
     return db.query(Schemas.Event).filter(Schemas.Event.tutor_id == tutor_id).all()
+
 
 def create_event(db: Session, event: CalModel.EventCreate):
     db_event = Schemas.Event(**event.dict())

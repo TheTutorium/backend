@@ -1,7 +1,9 @@
-from pydantic import BaseModel
-from datetime import time, datetime
-from typing import List
+from datetime import datetime, time
 from enum import Enum
+from typing import List
+
+from pydantic import BaseModel
+
 
 class DayOfWeek(str, Enum):
     Monday = "Monday"
@@ -12,19 +14,24 @@ class DayOfWeek(str, Enum):
     Saturday = "Saturday"
     Sunday = "Sunday"
 
+
 class TimeSlot(BaseModel):
     start_time: str
     end_time: str
+
 
 class AvailabilityDay(BaseModel):
     day: str
     time_slots: List[TimeSlot]
 
+
 class AvailabilityBase(BaseModel):
     tutor_id: str
 
+
 class AvailabilityCreate(AvailabilityBase):
     availability: List[AvailabilityDay]
+
 
 class Availability(AvailabilityBase):
     id: int
@@ -33,13 +40,16 @@ class Availability(AvailabilityBase):
     class Config:
         orm_mode = True
 
+
 class EventBase(BaseModel):
     tutor_id: str
     start_time: datetime
     end_time: datetime
 
+
 class EventCreate(EventBase):
     pass
+
 
 class Event(EventBase):
     id: int

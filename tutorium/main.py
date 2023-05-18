@@ -2,8 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from tutorium.apis.UserApi import user_api_router
 from tutorium.apis.CalApi import cal_api_router
+from tutorium.apis.UserApi import user_api_router
 from tutorium.database import Database, Schemas
 
 app = FastAPI()
