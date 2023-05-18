@@ -1,27 +1,36 @@
-from sqlalchemy.orm import Session
 from datetime import date
+
+from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import ReviewModel
+from . import UserManager
 
 
-def create_review(db: Session, review: ReviewModel.ReviewCreate):
-    db_review = Schema.Review(
-        booking_id=review.booking_id,
-        comment=review.comment,
+def create(db: Session, create_review: ReviewModel.ReviewCreate, student_id: str):
+    assert not UserManager.is_tutor(db, user_id=student_id)
+
+    review = Schema.Review(
+        **create_review.dict(),
         created_at=date.today(),
-        rating=review.rating,
+        student_id=student_id,
         updated_at=date.today(),
     )
-    db.add(db_review)
+    db.add(review)
     db.commit()
-    db.refresh(db_review)
-    return db_review
+    db.refresh(review)
+    return review
 
 
-def get_review(db: Session, review_id: int):
-    return db.query(Schema.Review).filter(Schema.Review.id == review_id).first()  # type: ignore
-
-
-def get_reviews(db: Session):
-    return db.query(Schema.Review).all()
+def get_all_of_course(db: Session, course_id: int):
+    return (
+        db.query(Schema.Review)
+        .filter(
+            Schema.Review.booking_id.in_(
+                db.query(Schema.Booking)
+                .filter(Schema.Booking.course_id == course_id)
+                .all()
+            )
+        )
+        .first()
+    )

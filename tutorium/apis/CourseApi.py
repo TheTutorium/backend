@@ -1,7 +1,6 @@
-from typing import Any, Dict
+from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
@@ -14,27 +13,37 @@ course_api_router = APIRouter(prefix="/courses", tags=["courses"])
 
 @course_api_router.post("/")
 async def create(
-    course: CourseModel.CourseCreate,
+    course_create: CourseModel.CourseCreate,
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    return CourseManager.create_course(db, course=course, user_id=user_id)
+    return CourseManager.create(db, course_create=course_create, tutor_id=user_id)
 
 
-@course_api_router.get("/", response_model=list[CourseModel.CourseRead])
-def read_all(
+@course_api_router.get("/{course_id}/", response_model=CourseModel.CourseRead)
+def get(
+    course_id: int,
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    courses = CourseManager.get_courses(db)
+    course = CourseManager.get(db, course_id=course_id)
+    return course
+
+
+@course_api_router.get("/", response_model=list[CourseModel.CourseRead])
+def get_all(
+    db: Session = Depends(get_db),
+    _: Any = Depends(authenticate),
+):
+    courses = CourseManager.get_all(db)
     return courses
 
 
-@course_api_router.get("/tutor", response_model=list[CourseModel.CourseRead])
-def read_courses_of_tutor(
-    user_id: str,
+@course_api_router.get("/by-tutor/", response_model=list[CourseModel.CourseRead])
+def get_all_of_tutor(
+    tutor_id: str,
     db: Session = Depends(get_db),
     _: str = Depends(authenticate),
 ):
-    courses = CourseManager.get_courses_of_tutor(db, user_id=user_id)
+    courses = CourseManager.get_all_of_tutor(db, tutor_id=tutor_id)
     return courses

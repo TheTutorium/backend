@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class CourseBase(BaseModel):
-    course_pic: str | None
+    course_pic: str | None = None
     description: str
     duration: int
     name: str

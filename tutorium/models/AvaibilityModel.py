@@ -25,16 +25,21 @@ class AvailabilityDay(BaseModel):
 
 
 class AvailabilityBase(BaseModel):
-    tutor_id: str
-
-
-class AvailabilityCreate(AvailabilityBase):
     availability: List[AvailabilityDay]
 
 
 class Availability(AvailabilityBase):
-    id: int
     availability: List[AvailabilityDay]
+    id: int
+    tutor_id: str
 
     class Config:
         orm_mode = True
+
+
+class AvailabilityCreate(AvailabilityBase):
+    pass
+
+
+class AvailabilityRead(Availability):
+    pass

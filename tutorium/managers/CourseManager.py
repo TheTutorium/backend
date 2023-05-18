@@ -1,32 +1,36 @@
-from sqlalchemy.orm import Session
 from datetime import date
+
+from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import CourseModel
 from . import UserManager
 
 
-def create_course(db: Session, course: CourseModel.CourseCreate, user_id: str):
-    assert UserManager.is_tutor(db, user_id=user_id)
+def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
+    assert UserManager.is_tutor(db, user_id=tutor_id)
 
-    db_course = Schema.Course(
-        course_pic=course.course_pic,
+    course = Schema.Course(
+        **course_create.dict(),
         created_at=date.today(),
-        description=course.description,
-        duration=course.duration,
-        name=course.name,
-        tutor_id=user_id,
+        tutor_id=tutor_id,
         updated_at=date.today(),
     )
-    db.add(db_course)
+    db.add(course)
     db.commit()
-    db.refresh(db_course)
-    return db_course
+    db.refresh(course)
+    return course
 
 
-def get_courses_of_tutor(db: Session, user_id: str):
-    return db.query(Schema.Course).filter(Schema.Course.tutor_id == user_id).all()
+def get(db: Session, course_id: int):
+    return db.query(Schema.Course).filter(Schema.Course.id == course_id).first()
 
 
-def get_courses(db: Session):
+def get_all(db: Session):
     return db.query(Schema.Course).all()
+
+
+def get_all_of_tutor(db: Session, tutor_id: str):
+    assert UserManager.is_tutor(db, user_id=tutor_id)
+
+    return db.query(Schema.Course).filter(Schema.Course.tutor_id == tutor_id).all()

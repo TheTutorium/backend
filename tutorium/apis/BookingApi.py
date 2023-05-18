@@ -1,7 +1,4 @@
-from typing import Any, Dict
-
-from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
@@ -14,17 +11,17 @@ booking_api_router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 @booking_api_router.post("/")
 async def create(
-    booking: BookingModel.BookingCreate,
+    booking_create: BookingModel.BookingCreate,
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    return BookingManager.create_booking(db, booking=booking, user_id=user_id)
+    return BookingManager.create(db, booking_create=booking_create, student_id=user_id)
 
 
-@booking_api_router.get("/user", response_model=list[BookingModel.BookingRead])
-def read_bookings_of_user(
+@booking_api_router.get("/by-user/", response_model=list[BookingModel.BookingRead])
+def get_all_of_user(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    bookings = BookingManager.get_bookings_of_user(db, user_id=user_id)
+    bookings = BookingManager.get_all_of_user(db, user_id=user_id)
     return bookings

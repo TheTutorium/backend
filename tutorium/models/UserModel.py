@@ -4,17 +4,17 @@ from pydantic import BaseModel
 
 
 class UserBase(BaseModel):
-    email: str
+    description: str = ""
     first_name: str
     id: str
+    is_tutor: bool = False
     last_name: str
-    profile_pic: str
+    profile_pic: str | None = None
 
 
 class User(UserBase):
     created_at: date
-    description: str | None
-    is_tutor: bool
+    email: str
     updated_at: date
 
     class Config:
@@ -22,18 +22,15 @@ class User(UserBase):
 
 
 class UserCreate(UserBase):
+    email: str
+
+
+class UserRead(User):
     pass
 
 
-class UserRead(BaseModel):
-    # Hidden fields for public read
+class PublicUserRead(UserBase):
     created_at: date
-    description: str | None
-    first_name: str
-    id: str
-    is_tutor: bool
-    last_name: str
-    profile_pic: str | None
     updated_at: date
 
     class Config:
@@ -41,5 +38,5 @@ class UserRead(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    description: str | None
-    is_tutor: bool | None
+    description: str | None = None
+    profile_pic: str | None = None

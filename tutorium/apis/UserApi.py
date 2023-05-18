@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -18,46 +18,40 @@ class WebhookUser(BaseModel):
     data: Dict[str, Any]
 
 
-@user_api_router.get("/is-tutor")
+@user_api_router.get("/is-tutor/")
 async def is_tutor(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
     is_tutor = UserManager.is_tutor(db, user_id=user_id)
-    return {
-        "isTutor": is_tutor,
-    }
-
-
-@user_api_router.get("/detailed", response_model=UserModel.User)
-def read_detailed(
-    db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
-):
-    user = UserManager.get_user(db, user_id=user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return is_tutor
 
 
 @user_api_router.get("/{user_id}", response_model=UserModel.UserRead)
-def read(
+def get(
     user_id: str,
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    user = UserManager.get_user(db, user_id=user_id)
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+    user = UserManager.get(db, user_id=user_id)
     return user
 
 
-@user_api_router.get("/", response_model=list[UserModel.User])
-def read_all(
+@user_api_router.get("/detailed/", response_model=UserModel.PublicUserRead)
+def get_detailed(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(authenticate),
+):
+    user = UserManager.get(db, user_id=user_id)
+    return user
+
+
+@user_api_router.get("/tutors/", response_model=list[UserModel.User])
+def get_all_tutors(
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    users = UserManager.get_users(db)
+    users = UserManager.get_all_tutors(db)
     return users
 
 
@@ -67,16 +61,16 @@ def update(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    updated_user = UserManager.update_user(db, user_id, user_update)
+    updated_user = UserManager.update_user(db, user_id=user_id, user_update=user_update)
     return updated_user
 
 
 @user_api_router.post("/webhook")
 async def webhook(weebhook_user: WebhookUser, db: Session = Depends(get_db)):
     if weebhook_user.type == "user.created":
-        return UserManager.create_user(
+        return UserManager.create(
             db,
-            user=UserModel.UserCreate(
+            user_create=UserModel.UserCreate(
                 email=weebhook_user.data["email_addresses"][0]["email_address"],
                 first_name=weebhook_user.data["first_name"],
                 id=weebhook_user.data["id"],
