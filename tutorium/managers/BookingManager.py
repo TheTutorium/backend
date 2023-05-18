@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from ..database import Schema
 from ..managers import UserManager
 from ..models import BookingModel
+from ..utils import StringUtils
 
 
 def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: str):
@@ -15,6 +16,8 @@ def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: 
         **booking_create.dict(),
         created_at=date.today(),
         student_id=student_id,
+        student_meeting_code=StringUtils.random_string(15),
+        tutor_meeting_code=StringUtils.random_string(15),
     )
     db.add(booking)
     db.commit()
@@ -45,9 +48,12 @@ def get_all_by_user(db: Session, user_id: str):
             db.query(Schema.Booking)
             .filter(
                 Schema.Booking.course_id.in_(
-                    db.query(Schema.Course)
-                    .filter(Schema.Course.tutor_id == user_id)
-                    .all()
+                    [
+                        course.id
+                        for course in db.query(Schema.Course)
+                        .filter(Schema.Course.tutor_id == user_id)
+                        .all()
+                    ]
                 )
             )
             .all()

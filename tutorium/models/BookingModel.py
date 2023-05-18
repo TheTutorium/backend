@@ -13,6 +13,8 @@ class Booking(BookingBase):
     created_at: date
     id: int
     student_id: str
+    student_meeting_code: str
+    tutor_meeting_code: str
 
     class Config:
         orm_mode = True

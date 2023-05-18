@@ -1,5 +1,4 @@
-from sqlalchemy import (JSON, Boolean, Column, Date, DateTime, Integer, String,
-                        Text)
+from sqlalchemy import JSON, Boolean, Column, Date, DateTime, Integer, String, Text
 
 from .Database import Base
 
@@ -22,6 +21,8 @@ class Booking(Base):
     created_at = Column(Date)
     end_time = Column(DateTime)
     start_time = Column(DateTime)
+    student_meeting_code = Column(String(15), unique=True)
+    tutor_meeting_code = Column(String(15), unique=True)
 
     course_id = Column(Integer)
     student_id = Column(String(255))
