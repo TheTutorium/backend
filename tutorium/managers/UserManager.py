@@ -27,7 +27,7 @@ def get_all_tutors(db: Session):
 
 
 def is_tutor(db: Session, user_id: str):
-    user = get(db, user_id=user_id).first()
+    user = get(db, user_id=user_id)
     assert user is not None
 
     return user.is_tutor

@@ -27,7 +27,26 @@ async def is_tutor(
     return is_tutor
 
 
-@user_api_router.get("/{user_id}", response_model=UserModel.UserRead)
+@user_api_router.get("/detailed/", response_model=UserModel.UserRead)
+def get_detailed(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(authenticate),
+):
+    user = UserManager.get(db, user_id=user_id)
+    return user
+
+
+@user_api_router.get("/tutors/", response_model=list[UserModel.PublicUserRead])
+def get_all_tutors(
+    db: Session = Depends(get_db),
+    _: Any = Depends(authenticate),
+):
+    print("@@@")
+    users = UserManager.get_all_tutors(db)
+    return users
+
+
+@user_api_router.get("/{user_id}/", response_model=UserModel.PublicUserRead)
 def get(
     user_id: str,
     db: Session = Depends(get_db),
@@ -37,25 +56,7 @@ def get(
     return user
 
 
-@user_api_router.get("/detailed/", response_model=UserModel.PublicUserRead)
-def get_detailed(
-    db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
-):
-    user = UserManager.get(db, user_id=user_id)
-    return user
-
-
-@user_api_router.get("/tutors/", response_model=list[UserModel.User])
-def get_all_tutors(
-    db: Session = Depends(get_db),
-    _: Any = Depends(authenticate),
-):
-    users = UserManager.get_all_tutors(db)
-    return users
-
-
-@user_api_router.put("/", response_model=UserModel.User)
+@user_api_router.put("/", response_model=UserModel.UserRead)
 def update(
     user_update: UserModel.UserUpdate,
     db: Session = Depends(get_db),

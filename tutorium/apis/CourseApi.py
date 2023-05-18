@@ -39,7 +39,9 @@ def get_all(
     return courses
 
 
-@course_api_router.get("/by-tutor/", response_model=list[CourseModel.CourseRead])
+@course_api_router.get(
+    "/by-tutor/{tutor_id}", response_model=list[CourseModel.CourseRead]
+)
 def get_all_of_tutor(
     tutor_id: str,
     db: Session = Depends(get_db),
