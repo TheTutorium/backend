@@ -6,7 +6,7 @@ from ..database import Schema
 from ..models import WhiteboardModel
 
 
-def create_whiteboard(db: Session, whiteboard_create: WhiteboardModel.WhiteboardCreate):
+def create(db: Session, whiteboard_create: WhiteboardModel.WhiteboardCreate):
     whiteboard = Schema.Course(
         **whiteboard_create.dict(),
         created_at=date.today(),

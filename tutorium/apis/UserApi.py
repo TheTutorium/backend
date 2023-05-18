@@ -18,7 +18,7 @@ class WebhookUser(BaseModel):
     data: Dict[str, Any]
 
 
-@user_api_router.get("/is-tutor/")
+@user_api_router.get("/is-tutor/", response_model=bool)
 async def is_tutor(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),

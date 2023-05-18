@@ -7,11 +7,11 @@ from ..models import ReviewModel
 from . import UserManager
 
 
-def create(db: Session, create_review: ReviewModel.ReviewCreate, student_id: str):
+def create(db: Session, review_create: ReviewModel.ReviewCreate, student_id: str):
     assert not UserManager.is_tutor(db, user_id=student_id)
 
     review = Schema.Review(
-        **create_review.dict(),
+        **review_create.dict(),
         created_at=date.today(),
         student_id=student_id,
         updated_at=date.today(),

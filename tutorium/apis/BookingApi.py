@@ -9,7 +9,7 @@ from ..utils.Middleware import authenticate
 booking_api_router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
-@booking_api_router.post("/")
+@booking_api_router.post("/", response_model=BookingModel.BookingRead)
 async def create(
     booking_create: BookingModel.BookingCreate,
     db: Session = Depends(get_db),

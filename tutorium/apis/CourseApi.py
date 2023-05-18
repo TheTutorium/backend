@@ -11,7 +11,7 @@ from ..utils.Middleware import authenticate
 course_api_router = APIRouter(prefix="/courses", tags=["courses"])
 
 
-@course_api_router.post("/")
+@course_api_router.post("/", response_model=CourseModel.CourseRead)
 async def create(
     course_create: CourseModel.CourseCreate,
     db: Session = Depends(get_db),
