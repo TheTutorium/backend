@@ -10,6 +10,7 @@ def create_course(db: Session, course: CourseModel.CourseCreate, user_id: str):
     assert UserManager.is_tutor(db, user_id=user_id)
 
     db_course = Schema.Course(
+        course_pic=course.course_pic,
         created_at=date.today(),
         description=course.description,
         duration=course.duration,

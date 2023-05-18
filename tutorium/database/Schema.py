@@ -23,6 +23,7 @@ class Booking(Base):
     start_time = Column(DateTime)
 
     course_id = Column(Integer)
+    student_id = Column(String(255))
 
 
 class Course(Base):
@@ -30,6 +31,7 @@ class Course(Base):
 
     id = Column(Integer, primary_key=True)
 
+    course_pic = Column(String(255), nullable=True)
     created_at = Column(Date)
     description = Column(String(255))
     duration = Column(Integer)

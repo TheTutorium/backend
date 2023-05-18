@@ -30,10 +30,11 @@ def read_all(
     return courses
 
 
-@course_api_router.get("/courses-of-tutor", response_model=list[CourseModel.CourseRead])
+@course_api_router.get("/tutor", response_model=list[CourseModel.CourseRead])
 def read_courses_of_tutor(
+    user_id: str,
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    _: str = Depends(authenticate),
 ):
     courses = CourseManager.get_courses_of_tutor(db, user_id=user_id)
     return courses
