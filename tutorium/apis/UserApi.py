@@ -25,30 +25,53 @@ async def is_tutor(
     user_id: str = Depends(authenticate),
 ):
     user = UserManager.get_user(db, user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
     return {
         "isTutor": user.is_tutor,
     }
 
 
-@user_api_router.get("/{user_id}", response_model=UserModel.User)
+@user_api_router.get("/details", response_model=UserModel.User)
+def read_detailed_user(
+    db: Session = Depends(get_db),
+    user_id: str = Depends(authenticate),
+):
+    user = UserManager.get_user(db, user_id=user_id)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+@user_api_router.get("/{user_id}", response_model=UserModel.UserRead)
 def read_user(
     user_id: str,
     db: Session = Depends(get_db),
-    requester_user_id: str = Depends(authenticate),
+    _: Any = Depends(authenticate),
 ):
-    db_user = UserManager.get_user(db, user_id=user_id)
-    if db_user is None:
+    user = UserManager.get_user(db, user_id=user_id)
+    if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+    return user
 
 
 @user_api_router.get("/", response_model=list[UserModel.User])
 def read_users(
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    _: Any = Depends(authenticate),
 ):
     users = UserManager.get_users(db)
     return users
+
+
+@user_api_router.put("/", response_model=UserModel.User)
+def update_user(
+    user_update: UserModel.UserUpdate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(authenticate),
+):
+    updated_user = UserManager.update_user(db, user_id, user_update)
+    return updated_user
 
 
 @user_api_router.post("/webhook")

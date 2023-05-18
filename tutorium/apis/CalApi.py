@@ -6,12 +6,18 @@ from pytz import timezone
 from sqlalchemy.orm import Session
 
 from ..database.Database import Base, SessionLocal, engine, get_db
-from ..managers.AvaManager import (check_availability, create_availability,
-                                   get_availabilities, get_availability)
-from ..managers.EventManager import (create_event_with_availability_check,
-                                     get_event, get_events)
-from ..models.CalModel import (Availability, AvailabilityCreate, Event,
-                               EventCreate)
+from ..managers.AvaManager import (
+    check_availability,
+    create_availability,
+    get_availabilities,
+    get_availability,
+)
+from ..managers.EventManager import (
+    create_event_with_availability_check,
+    get_event,
+    get_events,
+)
+from ..models.CalModel import Availability, AvailabilityCreate, Event, EventCreate
 
 cal_api_router = APIRouter(prefix="/cal", tags=["cal"])
 
