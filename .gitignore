@@ -510,3 +510,4 @@ backend/TutoriumApi/Migrations/
 backend/TutoriumApi/StaticFiles/
 
 materials/
+.env
