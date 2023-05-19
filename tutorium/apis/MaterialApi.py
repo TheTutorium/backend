@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
@@ -11,11 +11,14 @@ material_api_router = APIRouter(prefix="/materials", tags=["materials"])
 
 @material_api_router.post("/", response_model=MaterialModel.MaterialRead)
 async def create(
-    material_create: MaterialModel.MaterialCreate,
+    material_create: MaterialModel.MaterialCreate = Depends(),
+    file: UploadFile = File(...),
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    return MaterialManager.create(db, material_create=material_create, tutor_id=user_id)
+    return MaterialManager.create(
+        db, file=file, material_create=material_create, tutor_id=user_id
+    )
 
 
 @material_api_router.delete("/{material_id}/")

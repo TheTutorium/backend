@@ -45,4 +45,5 @@ def update(db: Session, user_id: str, user_update: UserModel.UserUpdate):
             setattr(user, attr, value)
 
     db.commit()
+    db.refresh(user)
     return user

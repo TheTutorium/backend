@@ -69,4 +69,5 @@ def update(db: Session, review_update: ReviewModel.ReviewUpdate, student_id: str
             setattr(review, attr, value)
 
     db.commit()
+    db.refresh(review)
     return review

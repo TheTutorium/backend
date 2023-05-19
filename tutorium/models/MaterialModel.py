@@ -21,5 +21,9 @@ class MaterialCreate(MaterialBase):
     pass
 
 
-class MaterialRead(Material):
-    pass
+class MaterialRead(MaterialBase):
+    created_at: date
+    id: int
+
+    class Config:
+        orm_mode = True
