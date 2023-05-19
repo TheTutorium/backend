@@ -29,6 +29,18 @@ class Booking(Base):
     student_id = Column(String(255))
 
 
+class Material(Base):
+    __tablename__ = "materials"
+
+    id = Column(Integer, primary_key=True)
+
+    created_at = Column(Date)
+    name = Column(String(255))
+    path = Column(String(1023))
+
+    course_id = Column(Integer)
+
+
 class Course(Base):
     __tablename__ = "courses"
 

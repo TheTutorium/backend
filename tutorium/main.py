@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from tutorium.apis.AvailabilityApi import availability_api_router
 from tutorium.apis.BookingApi import booking_api_router
 from tutorium.apis.CourseApi import course_api_router
+from tutorium.apis.MaterialApi import material_api_router
 from tutorium.apis.ReviewApi import review_api_router
 from tutorium.apis.UserApi import user_api_router
 from tutorium.apis.WhiteboardApi import whiteboard_api_router
@@ -21,6 +22,7 @@ app.add_middleware(
 app.include_router(availability_api_router)
 app.include_router(booking_api_router)
 app.include_router(course_api_router)
+app.include_router(material_api_router)
 app.include_router(review_api_router)
 app.include_router(user_api_router)
 app.include_router(whiteboard_api_router)

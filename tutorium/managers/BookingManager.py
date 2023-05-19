@@ -66,10 +66,4 @@ def get_all_by_user(db: Session, user_id: str):
 
 def is_user_in_booking(db: Session, booking_id: int, user_id: str):
     bookings = get_all_by_user(db, user_id=user_id)
-
-    booking = None
-    for b in bookings:
-        if b.id == booking_id:
-            booking = b
-
-    return booking is not None
+    return booking_id in [b.id for b in bookings]

@@ -46,3 +46,12 @@ def get_all(db: Session):
 
 def get_all_by_tutor(db: Session, tutor_id: str):
     return db.query(Schema.Course).filter(Schema.Course.tutor_id == tutor_id).all()
+
+
+def does_tutor_own_course(db: Session, course_id: int, tutor_id: str):
+    course = get(db, course_id=course_id)
+    return course.tutor_id == tutor_id
+
+
+def does_student_in_course(db: Session, course_id: int, student_id: str):
+    pass
