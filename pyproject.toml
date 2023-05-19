@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "tutorium"
 version = "0.1.0"
-description = ""
+description = "tutorium backend"
 authors = ["Baris Ogun Yoruk <barisoyoruk@gmail.com>"]
 readme = "README.md"
 
@@ -13,16 +13,10 @@ python = "^3.10"
 fastapi = "^0.95.1"
 uvicorn = "^0.22.0"
 python-dotenv = "^1.0.0"
-pyopenssl = "^23.1.1"
 pydantic = "^1.10.7"
-alembic = "^1.10.4"
-jwt = "^1.3.1"
 python-jose = "^3.3.0"
 sqlalchemy = "^2.0.13"
 mysqlclient = "^2.1.1"
-types-python-jose = "^3.3.4.7"
-pytz = "^2023.3"
-types-pytz = "^2023.3.0.0"
 python-multipart = "^0.0.6"
 
 [tool.poetry.group.dev.dependencies]
