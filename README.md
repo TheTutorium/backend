@@ -1,5 +1,5 @@
 # Tutorium Backend
-This repository has the codebase of Tutorium's backend part. It is implemented with FastAPI and uses RESTful APIs to transfer data. It is connected to a MySQL server to store the data. It uses to SQLAlchemy library to access the MySQL database server and apply CRUD operations on entities in ORM mode.
+This repository has the codebase of Tutorium's backend part. It is implemented with FastAPI and uses RESTful APIs to transfer data. It is connected to a MySQL server to store the data. It uses to SQLAlchemy library to access the MySQL database server and apply CRUD operations on entities.
 ## How to Run
 ### Locally
 1. Clone the repository:
