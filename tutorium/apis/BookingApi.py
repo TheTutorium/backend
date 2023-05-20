@@ -65,6 +65,7 @@ def _aggregate(
     return BookingModel.BookingRead(
         **booking.dict(),
         course_description=course.description,
+        course_duration=course.duration,
         course_name=course.name,
         course_pic=course.course_pic,
         tutor_first_name=tutor.first_name,
