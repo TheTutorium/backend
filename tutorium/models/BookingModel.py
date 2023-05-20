@@ -25,4 +25,9 @@ class BookingCreate(BookingBase):
 
 
 class BookingRead(Booking):
-    pass
+    course_description: str
+    course_name: str
+    course_pic: str | None
+    tutor_first_name: str
+    tutor_id: str
+    tutor_last_name: str

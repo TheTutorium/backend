@@ -36,8 +36,9 @@ def get(db: Session, course_id: int, as_db: bool = False):
     return course_db if as_db else CourseModel.Course.from_orm(course_db)
 
 
-def get_all(db: Session):
-    return list(map(CourseModel.Course.from_orm, db.query(Schema.Course).all()))
+def get_all(db: Session, as_dict: bool = False):
+    courses = map(CourseModel.Course.from_orm, db.query(Schema.Course).all())
+    return {course.id: course for course in courses} if as_dict else list(courses)
 
 
 def get_all_by_tutor(db: Session, tutor_id: str):

@@ -20,7 +20,7 @@ async def create(
 ):
     course = CourseManager.create(db, course_create=course_create, tutor_id=tutor_id)
     tutor = UserManager.get(db, user_id=course.tutor_id)
-    return _aggregate_tutor(course=course, tutor=tutor)
+    return _aggregate(course=course, tutor=tutor)
 
 
 @course_api_router.delete("/{course_id}/")
@@ -46,7 +46,7 @@ def get_all(
     courses = CourseManager.get_all(db)
     tutors_dict = UserManager.get_all_tutors(db, as_dict=True)
     return [
-        _aggregate_tutor(course=course, tutor=tutors_dict.get(course.tutor_id))
+        _aggregate(course=course, tutor=tutors_dict.get(course.tutor_id))
         for course in courses
     ]
 
@@ -61,7 +61,7 @@ def get_all_by_tutor(
 ):
     courses = CourseManager.get_all_by_tutor(db, tutor_id=tutor_id)
     tutor = UserManager.get(db, user_id=tutor_id)
-    return [_aggregate_tutor(course=course, tutor=tutor) for course in courses]
+    return [_aggregate(course=course, tutor=tutor) for course in courses]
 
 
 @course_api_router.get("/{course_id}/", response_model=CourseModel.CourseRead)
@@ -72,7 +72,7 @@ def get(
 ):
     course = CourseManager.get(db, course_id=course_id)
     tutor = UserManager.get(db, user_id=course.tutor_id)
-    return _aggregate_tutor(course=course, tutor=tutor)
+    return _aggregate(course=course, tutor=tutor)
 
 
 @course_api_router.put("/", response_model=CourseModel.CourseRead)
@@ -91,10 +91,10 @@ def update(
 
     course = CourseManager.update(db, course_update=course_update, tutor_id=tutor_id)
     tutor = UserManager.get(db, user_id=course.tutor_id)
-    return _aggregate_tutor(course=course, tutor=tutor)
+    return _aggregate(course=course, tutor=tutor)
 
 
-def _aggregate_tutor(course: CourseModel.Course, tutor: UserModel.User):
+def _aggregate(course: CourseModel.Course, tutor: UserModel.User):
     return CourseModel.CourseRead(
         **course.dict(),
         tutor_first_name=tutor.first_name,
