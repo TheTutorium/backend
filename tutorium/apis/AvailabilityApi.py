@@ -30,5 +30,4 @@ def get_all_by_tutor(
     db: Session = Depends(get_db),
     _: str = Depends(authenticate),
 ):
-    print(AvailabilityManager.get_all_by_tutor(db, tutor_id=tutor_id))
     return AvailabilityManager.get_all_by_tutor(db, tutor_id=tutor_id)

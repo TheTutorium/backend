@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import UserModel
+from ..utils.Exceptions import NotFoundException
 
 
 def create(db: Session, user_create: UserModel.UserCreate):
@@ -28,7 +29,7 @@ def delete(db: Session, user_id: str):
 def get(db: Session, user_id: str, as_db: bool = True):
     user_db = db.query(Schema.User).filter(Schema.User.id == user_id).first()
     if user_db is None:
-        raise Exception
+        raise NotFoundException(entity="user", id=user_id)
 
     return user_db if as_db else UserModel.User.from_orm(user_db)
 

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import ReviewModel
+from ..utils.Exceptions import NotFoundException, UnauthorizedException
 
 
 def create(db: Session, review_create: ReviewModel.ReviewCreate, student_id: str):
@@ -23,7 +24,10 @@ def create(db: Session, review_create: ReviewModel.ReviewCreate, student_id: str
 def delete(db: Session, review_id: int, student_id: str):
     review_db = _get(db, review_id=review_id, as_db=True)
     if review_db.student_id != student_id:
-        raise Exception
+        raise UnauthorizedException(
+            user_id=student_id,
+            custom_message=f"Student with id {student_id} does not own this review with id {review_id}",
+        )
 
     db.delete(review_db)
     db.commit()
@@ -50,7 +54,10 @@ def get_all_by_course(db: Session, course_id: int):
 def update(db: Session, review_update: ReviewModel.ReviewUpdate, student_id: str):
     review_db = _get(db, review_id=review_update.id, as_db=True)
     if review_db.student_id != student_id:
-        raise Exception
+        raise UnauthorizedException(
+            user_id=student_id,
+            custom_message=f"Student with id {student_id} does not own this review with id {review_db.id}",
+        )
 
     setattr(review_db, "updated_at", date.today())
     for attr, value in review_update:
@@ -66,6 +73,6 @@ def update(db: Session, review_update: ReviewModel.ReviewUpdate, student_id: str
 def _get(db: Session, review_id: int, as_db: bool = False):
     review_db = db.query(Schema.Review).filter(Schema.Review.id == review_id).first()
     if review_db is None:
-        raise Exception
+        raise NotFoundException(entity="review", id=review_id)
 
     return review_db if as_db else ReviewModel.Review.from_orm(review_db)

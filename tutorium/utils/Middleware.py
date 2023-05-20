@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
 from ..managers import UserManager
+from ..utils.ExceptionHandlers import UnauthorizedException
 
 security = HTTPBearer()
 
@@ -55,7 +56,9 @@ def authenitcate_tutor(
     db: Session = Depends(get_db), user_id: str = Depends(authenticate)
 ):
     if not UserManager.is_tutor(db, user_id=user_id):
-        raise Exception
+        raise UnauthorizedException(
+            user_id=user_id, custom_message=f"User with id {user_id} is not a tutor."
+        )
 
     tutor_id = user_id
     return tutor_id
@@ -65,7 +68,9 @@ def authenitcate_student(
     db: Session = Depends(get_db), user_id: str = Depends(authenticate)
 ):
     if UserManager.is_tutor(db, user_id=user_id):
-        raise Exception
+        raise UnauthorizedException(
+            user_id=user_id, custom_message=f"User with id {user_id} is not a student."
+        )
 
     student_id = user_id
     return student_id

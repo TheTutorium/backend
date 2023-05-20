@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from ..database import Schema
 from ..managers import BookingManager
 from ..models import CourseModel
+from ..utils.ExceptionHandlers import NotFoundException, UnauthorizedException
 
 
 def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
@@ -24,7 +25,10 @@ def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
 def delete(db: Session, course_id: int, tutor_id: str):
     course_db = get(db, course_id=course_id, as_db=True)
     if course_db.tutor_id != tutor_id:
-        raise Exception
+        raise UnauthorizedException(
+            user_id=tutor_id,
+            custom_message=f"Tutor with id {tutor_id} does not own this course with id {course_id}",
+        )
 
     db.delete(course_db)
     db.commit()
@@ -33,7 +37,7 @@ def delete(db: Session, course_id: int, tutor_id: str):
 def get(db: Session, course_id: int, as_db: bool = False):
     course_db = db.query(Schema.Course).filter(Schema.Course.id == course_id).first()
     if course_db is None:
-        raise Exception
+        raise NotFoundException(entity="course", id=course_id)
 
     return course_db if as_db else CourseModel.Course.from_orm(course_db)
 

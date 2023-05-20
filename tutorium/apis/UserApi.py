@@ -23,8 +23,7 @@ def get_all_tutors(
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    users = UserManager.get_all_tutors(db)
-    return users
+    return UserManager.get_all_tutors(db)
 
 
 @user_api_router.get("/detailed/", response_model=UserModel.UserRead)
@@ -32,8 +31,7 @@ def get_detailed(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    user = UserManager.get(db, user_id=user_id)
-    return user
+    return UserManager.get(db, user_id=user_id)
 
 
 @user_api_router.get("/is-tutor/", response_model=bool)

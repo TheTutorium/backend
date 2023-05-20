@@ -6,6 +6,7 @@ from ..database import Schema
 from ..managers import UserManager
 from ..models import BookingModel
 from ..utils import StringUtils
+from ..utils.Exceptions import NotFoundException, UnauthorizedException
 
 
 def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: str):
@@ -24,10 +25,14 @@ def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: 
 
 
 def delete(db: Session, booking_id: int, user_id: str):
-    if not is_user_in_booking(db, booking_id=booking_id, user_id=user_id):
-        raise Exception
-
     booking_db = _get(db, booking_id=booking_id, as_db=True)
+
+    if not is_user_in_booking(db, booking_id=booking_id, user_id=user_id):
+        raise UnauthorizedException(
+            user_id=user_id,
+            custom_message=f"User with id {user_id} is not a participant of this booking with id {booking_id}.",
+        )
+
     db.delete(booking_db)
     db.commit()
 
@@ -66,6 +71,6 @@ def _get(db: Session, booking_id: int, as_db: bool = False):
         db.query(Schema.Booking).filter(Schema.Booking.id == booking_id).first()
     )
     if booking_db is None:
-        raise Exception
+        raise NotFoundException(entity="booking", id=booking_id)
 
     return booking_db if as_db else BookingModel.Booking.from_orm(booking_db)

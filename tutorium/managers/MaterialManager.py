@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import MaterialModel
+from ..utils.ExceptionHandlers import NotFoundException, UnauthorizedException
 from . import CourseManager
 
 
@@ -19,7 +20,10 @@ def create(
     if not CourseManager.does_tutor_own_course(
         db, course_id=material_create.course_id, tutor_id=tutor_id
     ):
-        raise Exception
+        raise UnauthorizedException(
+            user_id=tutor_id,
+            custom_message=f"Tutor with id {tutor_id} does not own this course with id {material_create.course_id}",
+        )
 
     name = f"{material_create.name}{_get_extension(file.filename)}"
 
@@ -46,9 +50,12 @@ def create(
 def delete(db: Session, material_id: int, tutor_id: str):
     material_db = _get(db, material_id=material_id, user_id=tutor_id, as_db=True)
     if not CourseManager.does_tutor_own_course(
-        db, course_id=material_db.course_id, tutor_id=tutor_id
+        db, course_id=int(material_db.course_id), tutor_id=tutor_id
     ):
-        raise Exception
+        raise UnauthorizedException(
+            user_id=tutor_id,
+            custom_message=f"Tutor with id {tutor_id} does not own this course with id {material_db.course_id}",
+        )
 
     db.delete(material_db)
     db.commit()
@@ -61,7 +68,10 @@ def download(db: Session, material_id: int, user_id: str):
 
 def get_all_by_course(db: Session, course_id: int, user_id: str):
     if not CourseManager.is_user_in_course(db, course_id=course_id, user_id=user_id):
-        raise Exception
+        raise UnauthorizedException(
+            user_id=user_id,
+            custom_message=f"User with id {user_id} is not in this course with id {course_id}",
+        )
 
     materials_db = (
         db.query(Schema.Material).filter(Schema.Material.course_id == course_id).all()
@@ -74,12 +84,15 @@ def _get(db: Session, material_id: int, user_id: str, as_db: bool = False):
         db.query(Schema.Material).filter(Schema.Material.id == material_id).first()
     )
     if material_db is None:
-        raise Exception
+        raise NotFoundException(entity="material", id=material_id)
 
     if not CourseManager.is_user_in_course(
         db, course_id=int(material_db.course_id), user_id=user_id
     ):
-        raise Exception
+        raise UnauthorizedException(
+            user_id=user_id,
+            custom_message=f"User with id {user_id} is not in this course with id {material_db.course_id}",
+        )
 
     return material_db if as_db else MaterialModel.Material.from_orm(material_db)
 
