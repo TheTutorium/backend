@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
 from ..managers import CourseManager
+from ..managers import UserManager
 from ..models import CourseModel
 from ..utils.Middleware import authenticate
 
@@ -17,7 +18,9 @@ async def create(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    return CourseManager.create(db, course_create=course_create, tutor_id=user_id)
+    course = CourseManager.create(db, course_create=course_create, tutor_id=user_id)
+    tutor = UserManager.get(db, user_id=course.tutor_id)
+    return CourseModel.CourseRead(**course, **tutor)
 
 
 @course_api_router.delete("/{course_id}/")
@@ -35,7 +38,11 @@ def get_all(
     _: Any = Depends(authenticate),
 ):
     courses = CourseManager.get_all(db)
-    return courses
+    users_dict = UserManager.get_all_tutors(db, as_dict=True)
+    return [
+        CourseModel.CourseRead(**course, **users_dict.get(course.tutor_id))
+        for course in courses
+    ]
 
 
 @course_api_router.get(
@@ -47,7 +54,8 @@ def get_all_by_tutor(
     _: str = Depends(authenticate),
 ):
     courses = CourseManager.get_all_by_tutor(db, tutor_id=tutor_id)
-    return courses
+    tutor = UserManager.get(db, user_id=tutor_id)
+    return [CourseModel.CourseRead(**course, **tutor) for course in courses]
 
 
 @course_api_router.get("/{course_id}/", response_model=CourseModel.CourseRead)
@@ -57,4 +65,5 @@ def get(
     _: Any = Depends(authenticate),
 ):
     course = CourseManager.get(db, course_id=course_id)
-    return course
+    tutor = UserManager.get(db, user_id=course.tutor_id)
+    return CourseModel.CourseRead(**course, **tutor)

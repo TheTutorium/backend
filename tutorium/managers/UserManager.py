@@ -26,8 +26,9 @@ def get(db: Session, user_id: str):
     return user
 
 
-def get_all_tutors(db: Session):
-    return db.query(Schema.User).filter(Schema.User.is_tutor).all()
+def get_all_tutors(db: Session, as_dict: bool = False):
+    tutors = db.query(Schema.User).filter(Schema.User.is_tutor).all()
+    return {tutor.id: tutor for tutor in tutors} if as_dict else tutors
 
 
 def is_tutor(db: Session, user_id: str):

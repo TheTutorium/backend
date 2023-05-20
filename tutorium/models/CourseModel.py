@@ -25,4 +25,5 @@ class CourseCreate(CourseBase):
 
 
 class CourseRead(Course):
-    pass
+    tutor_first_name: str
+    tutor_last_name: str
