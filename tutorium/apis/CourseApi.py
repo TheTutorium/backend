@@ -7,6 +7,7 @@ from ..database.Database import get_db
 from ..managers import CourseManager
 from ..managers import UserManager
 from ..models import CourseModel
+from ..models import UserModel
 from ..utils.Middleware import authenticate
 
 course_api_router = APIRouter(prefix="/courses", tags=["courses"])
@@ -20,7 +21,7 @@ async def create(
 ):
     course = CourseManager.create(db, course_create=course_create, tutor_id=user_id)
     tutor = UserManager.get(db, user_id=course.tutor_id)
-    return CourseModel.CourseRead(**course, **tutor)
+    return _aggregate_tutor(course=course, tutor=tutor)
 
 
 @course_api_router.delete("/{course_id}/")
@@ -38,9 +39,9 @@ def get_all(
     _: Any = Depends(authenticate),
 ):
     courses = CourseManager.get_all(db)
-    users_dict = UserManager.get_all_tutors(db, as_dict=True)
+    tutors_dict = UserManager.get_all_tutors(db, as_dict=True)
     return [
-        CourseModel.CourseRead(**course, **users_dict.get(course.tutor_id))
+        _aggregate_tutor(course=course, tutor=tutors_dict.get(course.tutor_id))
         for course in courses
     ]
 
@@ -55,7 +56,7 @@ def get_all_by_tutor(
 ):
     courses = CourseManager.get_all_by_tutor(db, tutor_id=tutor_id)
     tutor = UserManager.get(db, user_id=tutor_id)
-    return [CourseModel.CourseRead(**course, **tutor) for course in courses]
+    return [_aggregate_tutor(course=course, tutor=tutor) for course in courses]
 
 
 @course_api_router.get("/{course_id}/", response_model=CourseModel.CourseRead)
@@ -66,4 +67,12 @@ def get(
 ):
     course = CourseManager.get(db, course_id=course_id)
     tutor = UserManager.get(db, user_id=course.tutor_id)
-    return CourseModel.CourseRead(**course, **tutor)
+    return _aggregate_tutor(course=course, tutor=tutor)
+
+
+def _aggregate_tutor(course: CourseModel.Course, tutor: UserModel.User):
+    return CourseModel.CourseRead(
+        **course.dict(),
+        tutor_first_name=tutor.first_name,
+        tutor_last_name=tutor.last_name
+    )

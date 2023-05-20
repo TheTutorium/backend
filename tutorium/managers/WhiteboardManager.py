@@ -15,14 +15,14 @@ def create(
     ):
         raise Exception
 
-    whiteboard = Schema.Whiteboard(
+    whiteboard_db = Schema.Whiteboard(
         **whiteboard_create.dict(),
         created_at=date.today(),
     )
-    db.add(whiteboard)
+    db.add(whiteboard_db)
     db.commit()
-    db.refresh(whiteboard)
-    return whiteboard
+    db.refresh(whiteboard_db)
+    return WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
 
 
 def get_by_booking_id(db: Session, booking_id: int, user_id: str):
@@ -31,12 +31,12 @@ def get_by_booking_id(db: Session, booking_id: int, user_id: str):
     ):
         raise Exception
 
-    whiteboard = (
+    whiteboard_db = (
         db.query(Schema.Whiteboard)
         .filter(Schema.Whiteboard.booking_id == booking_id)
         .first()
     )
-    if whiteboard is None:
+    if whiteboard_db is None:
         raise Exception
 
-    return whiteboard
+    return WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
