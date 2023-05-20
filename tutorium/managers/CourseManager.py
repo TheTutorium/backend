@@ -34,6 +34,11 @@ def delete(db: Session, course_id: int, tutor_id: str):
     db.commit()
 
 
+def does_tutor_own_course(db: Session, course_id: int, tutor_id: str):
+    course_db = get(db, course_id=course_id)
+    return tutor_id == course_db.tutor_id
+
+
 def get(db: Session, course_id: int, as_db: bool = False):
     course_db = db.query(Schema.Course).filter(Schema.Course.id == course_id).first()
     if course_db is None:
@@ -55,15 +60,29 @@ def get_all_by_tutor(db: Session, tutor_id: str):
     )
 
 
-def does_tutor_own_course(db: Session, course_id: int, tutor_id: str):
-    course_db = get(db, course_id=course_id)
-    return tutor_id == course_db.tutor_id
-
-
 def is_user_in_course(db: Session, course_id: int, user_id: str):
     return does_tutor_own_course(
         db, course_id=course_id, tutor_id=user_id
     ) or _is_student_in_course(db, course_id=course_id, student_id=user_id)
+
+
+def update(db: Session, course_update: CourseModel.CourseUpdate, tutor_id: str):
+    course_db = get(db, course_id=course_update.id, as_db=True)
+    if course_db.tutor_id != tutor_id:
+        raise UnauthorizedException(
+            user_id=tutor_id,
+            custom_message=f"Tutor with id {tutor_id} does not own this course with id {course_update.id}",
+        )
+
+    setattr(course_db, "updated_at", date.today())
+    for attr, value in course_update:
+        if value is not None and attr != "id":
+            setattr(course_db, attr, value)
+
+    db.commit()
+    db.refresh(course_db)
+
+    return CourseModel.Course.from_orm(course_db)
 
 
 def _is_student_in_course(db: Session, course_id: int, student_id: str):

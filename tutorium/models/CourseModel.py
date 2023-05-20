@@ -27,3 +27,11 @@ class CourseCreate(CourseBase):
 class CourseRead(Course):
     tutor_first_name: str
     tutor_last_name: str
+
+
+class CourseUpdate(BaseModel):
+    course_pic: str | None = None
+    description: str | None = None
+    duration: int | None = None
+    id: int
+    name: str | None = None

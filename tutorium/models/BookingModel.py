@@ -5,12 +5,12 @@ from pydantic import BaseModel
 
 class BookingBase(BaseModel):
     course_id: int
-    end_time: datetime
     start_time: datetime
 
 
 class Booking(BookingBase):
     created_at: date
+    end_time: datetime
     id: int
     student_id: str
     student_meeting_code: str

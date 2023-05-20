@@ -61,7 +61,7 @@ def update(db: Session, review_update: ReviewModel.ReviewUpdate, student_id: str
 
     setattr(review_db, "updated_at", date.today())
     for attr, value in review_update:
-        if value is not None:
+        if value is not None and attr != "id":
             setattr(review_db, attr, value)
 
     db.commit()

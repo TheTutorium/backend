@@ -68,6 +68,17 @@ def get(
     return _aggregate_tutor(course=course, tutor=tutor)
 
 
+@course_api_router.put("/", response_model=CourseModel.CourseRead)
+def update(
+    course_update: CourseModel.CourseUpdate,
+    db: Session = Depends(get_db),
+    tutor_id: str = Depends(authenitcate_tutor),
+):
+    course = CourseManager.update(db, course_update=course_update, tutor_id=tutor_id)
+    tutor = UserManager.get(db, user_id=course.tutor_id)
+    return _aggregate_tutor(course=course, tutor=tutor)
+
+
 def _aggregate_tutor(course: CourseModel.Course, tutor: UserModel.User):
     return CourseModel.CourseRead(
         **course.dict(),
