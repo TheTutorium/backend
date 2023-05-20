@@ -79,6 +79,12 @@ async def webhook(
             ),
         )
     if weebhook_user.type == "user.updated":
-        pass
+        return UserManager.update(
+            db,
+            user_id=weebhook_user.data["id"],
+            user_update=UserModel.UserUpdate(
+                profile_pic=weebhook_user.data["profile_image_url"]
+            ),
+        )
     if weebhook_user.type == "user.deleted":
-        pass
+        UserManager.delete(db, user_id=weebhook_user.data["id"])

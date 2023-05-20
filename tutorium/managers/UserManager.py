@@ -19,6 +19,12 @@ def create(db: Session, user_create: UserModel.UserCreate):
     return UserModel.User.from_orm(user_db)
 
 
+def delete(db: Session, user_id: str):
+    user_db = get(db, user_id=user_id, as_db=True)
+    db.delete(user_db)
+    db.commit()
+
+
 def get(db: Session, user_id: str, as_db: bool = True):
     user_db = db.query(Schema.User).filter(Schema.User.id == user_id).first()
     if user_db is None:
