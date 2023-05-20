@@ -1,5 +1,4 @@
-from sqlalchemy import (JSON, Boolean, Column, Date, DateTime, Integer, String,
-                        Text)
+from sqlalchemy import JSON, Boolean, Column, Date, DateTime, Integer, String, Text
 
 from .Database import Base
 
@@ -48,6 +47,7 @@ class Course(Base):
 
     course_pic = Column(String(255), nullable=True)
     created_at = Column(Date)
+    deactivated = Column(Boolean, default=False)
     description = Column(String(255))
     duration = Column(Integer)  # In minutes
     name = Column(String(255))
