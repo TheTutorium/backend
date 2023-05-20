@@ -17,9 +17,16 @@ def create(
     db: Session = Depends(get_db),
     tutor_id: str = Depends(authenitcate_tutor),
 ):
+    # TODO
     return AvailabilityManager.create(
         db, availability_create=availability_create, tutor_id=tutor_id
     )
+
+
+@availability_api_router.delete("/")
+def delete():
+    # TODO
+    pass
 
 
 @availability_api_router.get(

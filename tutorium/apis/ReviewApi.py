@@ -16,8 +16,8 @@ async def create(
     db: Session = Depends(get_db),
     student_id: str = Depends(authenitcate_student),
 ):
-    if not BookingManager.is_user_in_booking(
-        db, booking_id=review_create.booking_id, user_id=student_id
+    if not BookingManager.is_student_in_booking(
+        db, booking_id=review_create.booking_id, student_id=student_id
     ):
         raise UnauthorizedException(
             user_id=student_id,

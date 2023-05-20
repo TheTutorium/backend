@@ -85,7 +85,7 @@ def _create_update_checks(course: CourseModel.CourseCreate | CourseModel.CourseU
             operation="POST",
             custom_message=f"Course description cannot be smaller than ten characters. Given description: {course.description}",
         )
-    if course.duration and course.duration < 10:
+    if course.duration is not None and course.duration < 10:
         raise BadRequestException(
             entity="course",
             id="",

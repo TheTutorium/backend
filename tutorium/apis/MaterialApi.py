@@ -46,7 +46,7 @@ async def delete(
     MaterialManager.delete(db, material_id=material_id)
 
 
-@material_api_router.get("/download/{material_id}/")  # TODO
+@material_api_router.get("/download/{material_id}/")
 async def download(
     material_id: int,
     db: Session = Depends(get_db),

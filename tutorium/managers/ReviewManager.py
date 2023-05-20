@@ -103,7 +103,7 @@ def _create_update_checks(review: ReviewModel.ReviewCreate | ReviewModel.ReviewU
             operation="POST|UPDATE",
             custom_message=f"Review comment cannot be smaller than ten characters. Given name: {review.comment}",
         )
-    if review.rating and not (0 <= review.rating <= 10):
+    if review.rating is not None and not (0 <= review.rating <= 10):
         raise BadRequestException(
             entity="review",
             id="",

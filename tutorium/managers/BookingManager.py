@@ -3,7 +3,7 @@ from datetime import date, datetime
 from sqlalchemy.orm import Session
 
 from ..database import Schema
-from ..managers import UserManager
+from ..managers import CourseManager, UserManager
 from ..models import BookingModel
 from ..utils import StringUtils
 from ..utils.Exceptions import BadRequestException, NotFoundException
@@ -67,15 +67,27 @@ def get_all_by_user(db: Session, user_id: str):
 
 
 def is_user_in_booking(db: Session, booking_id: int, user_id: str):
-    bookings_db = get_all_by_user(db, user_id=user_id)
-    return booking_id in [booking_db.id for booking_db in bookings_db]
+    return is_student_in_booking(
+        db, booking_id=booking_id, student_id=user_id
+    ) or is_tutor_in_booking(db, booking_id=booking_id, tutor_id=user_id)
+
+
+def is_student_in_booking(db: Session, booking_id: int, student_id: str):
+    booking_db = get(db, booking_id=booking_id)
+    return booking_db.student_id == student_id
+
+
+def is_tutor_in_booking(db: Session, booking_id: int, tutor_id: str):
+    booking_db = get(db, booking_id=booking_id)
+    course_db = CourseManager.get(db, course_id=booking_db.course_id)
+    return course_db.tutor_id == tutor_id
 
 
 def _delete_checks(booking_db: Schema.Booking):
     if booking_db.start_time < datetime.now():
         raise BadRequestException(
             entity="booking",
-            id=booking_db.booking_id,
+            id=int(booking_db.id),
             operation="DELETE",
-            custom_message=f"Booking with id {booking_db.booking_id} cannot be deleted because its is already passed. Start time: {booking_db.start_time}",
+            custom_message=f"Booking with id {booking_db.id} cannot be deleted because its is already passed. Start time: {booking_db.start_time}",
         )

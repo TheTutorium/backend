@@ -48,12 +48,12 @@ def get_all_by_user(
 ):
     bookings = BookingManager.get_all_by_user(db, user_id=user_id)
     courses = CourseManager.get_all(db, as_dict=True)
-    tutors = UserManager.get_all_tutors(db, as_dict=True)
+    tutor = UserManager.get(db, user_id=user_id)
     return [
         _aggregate(
             booking=booking,
             course=courses.get(booking.course_id),
-            tutor=tutors.get(courses.get(booking.course_id).tutor_id),
+            tutor=tutor,
         )
         for booking in bookings
     ]

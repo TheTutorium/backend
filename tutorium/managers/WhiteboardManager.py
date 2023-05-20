@@ -19,7 +19,7 @@ def create(db: Session, whiteboard_create: WhiteboardModel.WhiteboardCreate):
     return WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
 
 
-def get_by_booking_id(db: Session, booking_id: int, user_id: str):
+def get_by_booking_id(db: Session, booking_id: int):
     whiteboard_db = (
         db.query(Schema.Whiteboard)
         .filter(Schema.Whiteboard.booking_id == booking_id)

@@ -16,8 +16,8 @@ async def create(
     db: Session = Depends(get_db),
     tutor_id: str = Depends(authenitcate_tutor),
 ):
-    if not BookingManager.is_user_in_booking(
-        db, booking_id=whiteboard_create.booking_id, user_id=tutor_id
+    if not BookingManager.is_tutor_in_booking(
+        db, booking_id=whiteboard_create.booking_id, tutor_id=tutor_id
     ):
         raise UnauthorizedException(
             user_id=tutor_id,
@@ -43,6 +43,4 @@ def get_by_booking_id(
             custom_message=f"User with id {user_id} is not in this booking with id {booking_id}",
         )
 
-    return WhiteboardManager.get_by_booking_id(
-        db, booking_id=booking_id, user_id=user_id
-    )
+    return WhiteboardManager.get_by_booking_id(db, booking_id=booking_id)
