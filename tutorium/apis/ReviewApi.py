@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
-from ..managers import ReviewManager
+from ..managers import BookingManager, ReviewManager
 from ..models import ReviewModel
 from ..utils.Exceptions import UnauthorizedException
 from ..utils.Middleware import authenitcate_student, authenticate
@@ -16,6 +16,14 @@ async def create(
     db: Session = Depends(get_db),
     student_id: str = Depends(authenitcate_student),
 ):
+    if not BookingManager.is_user_in_booking(
+        db, booking_id=review_create.booking_id, user_id=student_id
+    ):
+        raise UnauthorizedException(
+            user_id=student_id,
+            custom_message=f"Student with id {student_id} does not belong to the this booking with id {review_create.booking_id}",
+        )
+
     return ReviewManager.create(db, review_create=review_create, student_id=student_id)
 
 
@@ -25,7 +33,7 @@ async def delete(
     db: Session = Depends(get_db),
     student_id: str = Depends(authenitcate_student),
 ):
-    if not ReviewManager.does_student_own_review(
+    if not ReviewManager.does_student_own_the_review(
         db, review_id=review_id, student_id=student_id
     ):
         raise UnauthorizedException(
@@ -53,7 +61,7 @@ def update(
     db: Session = Depends(get_db),
     student_id: str = Depends(authenitcate_student),
 ):
-    if not ReviewManager.does_student_own_review(
+    if not ReviewManager.does_student_own_the_review(
         db, review_id=review_update.id, student_id=student_id
     ):
         raise UnauthorizedException(

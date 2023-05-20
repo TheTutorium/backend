@@ -23,8 +23,8 @@ async def create(
     return _aggregate(course=course, tutor=tutor)
 
 
-@course_api_router.delete("/{course_id}/")
-async def delete(
+@course_api_router.post("/deactivate/{course_id}/")
+async def deactivate(
     course_id: int,
     db: Session = Depends(get_db),
     tutor_id: str = Depends(authenitcate_tutor),
@@ -35,7 +35,7 @@ async def delete(
             custom_message=f"Tutor with id {tutor_id} does not own this course with id {course_id}",
         )
 
-    CourseManager.delete(db, course_id=course_id)
+    CourseManager.deactivate(db, course_id=course_id)
 
 
 @course_api_router.get("/all/", response_model=list[CourseModel.CourseRead])

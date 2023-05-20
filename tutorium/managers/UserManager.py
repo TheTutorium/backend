@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..database import Schema
 from ..models import UserModel
 from ..utils import Updater
-from ..utils.Exceptions import NotFoundException
+from ..utils.Exceptions import BadRequestException, NotFoundException
 
 
 def create(db: Session, user_create: UserModel.UserCreate):
@@ -45,7 +45,19 @@ def is_tutor(db: Session, user_id: str):
 
 
 def update(db: Session, user_id: str, user_update: UserModel.UserUpdate):
+    _update_checks(user_update)
+
     user_db = get(db, user_id=user_id, as_db=True)
     Updater.update(user_db, user_update)
     db.flush()
     return UserModel.User.from_orm(user_db)
+
+
+def _update_checks(user_update: UserModel.UserUpdate):
+    if user_update.description and len(user_update.description) < 10:
+        raise BadRequestException(
+            entity="review",
+            id="",
+            operation="POST|UPDATE",
+            custom_message=f"User description cannot be smaller than ten characters. Given description: {user_update.description}",
+        )

@@ -9,6 +9,9 @@ def bad_request_exception_handler(request: Request, exc: BadRequestException):
     return JSONResponse(
         status_code=400,
         content={
+            "entity": exc.entity,
+            "id": exc.id,
+            "operation": exc.operation,
             "message": exc.message,
         },
     )

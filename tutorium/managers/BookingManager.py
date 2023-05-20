@@ -6,10 +6,11 @@ from ..database import Schema
 from ..managers import UserManager
 from ..models import BookingModel
 from ..utils import StringUtils
-from ..utils.Exceptions import NotFoundException
+from ..utils.Exceptions import BadRequestException, NotFoundException
 
 
 def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: str):
+    # TODO
     booking_db = Schema.Booking(
         **booking_create.dict(),
         created_at=date.today(),
@@ -25,6 +26,8 @@ def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: 
 
 def delete(db: Session, booking_id: int):
     booking_db = get(db, booking_id=booking_id, as_db=True)
+    _delete_checks(booking_db=booking_db)
+
     db.delete(booking_db)
     db.flush()
 
@@ -66,3 +69,13 @@ def get_all_by_user(db: Session, user_id: str):
 def is_user_in_booking(db: Session, booking_id: int, user_id: str):
     bookings_db = get_all_by_user(db, user_id=user_id)
     return booking_id in [booking_db.id for booking_db in bookings_db]
+
+
+def _delete_checks(booking_db: Schema.Booking):
+    if booking_db.start_time < datetime.now():
+        raise BadRequestException(
+            entity="booking",
+            id=booking_db.booking_id,
+            operation="DELETE",
+            custom_message=f"Booking with id {booking_db.booking_id} cannot be deleted because its is already passed. Start time: {booking_db.start_time}",
+        )

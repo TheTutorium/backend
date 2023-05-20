@@ -12,6 +12,7 @@ class CourseBase(BaseModel):
 
 class Course(CourseBase):
     created_at: date
+    deactivated: bool
     id: int
     updated_at: date
     tutor_id: str

@@ -1,6 +1,15 @@
 class BadRequestException(Exception):
-    def __init__(self, message: str):
-        self.message = message
+    def __init__(
+        self, entity: str, id: int | str, operation: str, custom_message: str | None
+    ):
+        self.entity = entity
+        self.id = id
+        self.operation = operation
+        self.message = (
+            custom_message
+            if custom_message
+            else f"Operation {operation} cannot be applied on the entity {entity} with id {id}."
+        )
 
 
 class NotFoundException(Exception):

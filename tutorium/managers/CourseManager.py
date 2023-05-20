@@ -6,10 +6,12 @@ from ..database import Schema
 from ..managers import BookingManager
 from ..models import CourseModel
 from ..utils import Updater
-from ..utils.ExceptionHandlers import NotFoundException
+from ..utils.ExceptionHandlers import BadRequestException, NotFoundException
 
 
 def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
+    _create_update_checks(course=course_create)
+
     course_db = Schema.Course(
         **course_create.dict(),
         created_at=date.today(),
@@ -21,9 +23,10 @@ def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
     return CourseModel.Course.from_orm(course_db)
 
 
-def delete(db: Session, course_id: int):
+def deactivate(db: Session, course_id: int):
     course_db = get(db, course_id=course_id, as_db=True)
-    db.delete(course_db)
+    setattr(course_db, "deactivated", True)
+    setattr(course_db, "updated_at", date.today())
     db.flush()
 
 
@@ -50,6 +53,8 @@ def get_all_by_tutor(db: Session, tutor_id: str):
 
 
 def update(db: Session, course_update: CourseModel.CourseUpdate, tutor_id: str):
+    _create_update_checks(course=course_update)
+
     course_db = get(db, course_id=course_update.id, as_db=True)
     Updater.update(course_db, course_update)
     db.flush()
@@ -70,3 +75,27 @@ def is_tutor_in_course(db: Session, course_id: int, tutor_id: str):
 def _is_student_in_course(db: Session, course_id: int, student_id: str):
     bookings = BookingManager.get_all_by_user(db, user_id=student_id)
     return course_id in [booking.course_id for booking in bookings]
+
+
+def _create_update_checks(course: CourseModel.CourseCreate | CourseModel.CourseUpdate):
+    if course.description and len(course.description) < 10:
+        raise BadRequestException(
+            entity="course",
+            id="",
+            operation="POST",
+            custom_message=f"Course description cannot be smaller than ten characters. Given description: {course.description}",
+        )
+    if course.duration and course.duration < 10:
+        raise BadRequestException(
+            entity="course",
+            id="",
+            operation="POST|UPDATE",
+            custom_message=f"Course duration cannot be smaller than ten minutes. Given duration: {course.duration}",
+        )
+    if course.name and len(course.name) < 5:
+        raise BadRequestException(
+            entity="course",
+            id="",
+            operation="POST|UPDATE",
+            custom_message=f"Course name cannot be smaller than five characters. Given ame: {course.name}",
+        )

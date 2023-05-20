@@ -4,10 +4,10 @@ from pydantic import BaseModel
 
 
 class UserBase(BaseModel):
-    description: str = ""
+    description: str
     first_name: str
     id: str
-    is_tutor: bool = False
+    is_tutor: bool
     last_name: str
     profile_pic: str | None = None
 
