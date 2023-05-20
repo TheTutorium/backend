@@ -19,6 +19,7 @@ def create(
     db.add(availability_db)
     db.commit()
     db.refresh(availability_db)
+
     return AvailabilityModel.Availability.from_orm(availability_db)
 
 

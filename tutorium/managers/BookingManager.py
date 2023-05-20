@@ -22,6 +22,7 @@ def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: 
     db.add(booking_db)
     db.commit()
     db.refresh(booking_db)
+
     return BookingModel.Booking.from_orm(booking_db)
 
 

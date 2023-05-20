@@ -22,6 +22,7 @@ def create(
     db.add(whiteboard_db)
     db.commit()
     db.refresh(whiteboard_db)
+
     return WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
 
 

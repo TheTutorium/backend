@@ -20,6 +20,7 @@ def create(db: Session, review_create: ReviewModel.ReviewCreate, student_id: str
     db.add(review_db)
     db.commit()
     db.refresh(review_db)
+
     return ReviewModel.Review.from_orm(review_db)
 
 
@@ -70,4 +71,5 @@ def update(db: Session, review_update: ReviewModel.ReviewUpdate, student_id: str
 
     db.commit()
     db.refresh(review)
+
     return review

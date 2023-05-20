@@ -20,6 +20,7 @@ def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
     db.add(course_db)
     db.commit()
     db.refresh(course_db)
+
     return CourseModel.Course.from_orm(course_db)
 
 

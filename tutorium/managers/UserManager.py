@@ -15,6 +15,7 @@ def create(db: Session, user_create: UserModel.UserCreate):
     db.add(user_db)
     db.commit()
     db.refresh(user_db)
+
     return UserModel.User.from_orm(user_db)
 
 
@@ -29,6 +30,7 @@ def get(db: Session, user_id: str):
 def get_all_tutors(db: Session, as_dict: bool = False):
     tutors_db = db.query(Schema.User).filter(Schema.User.is_tutor).all()
     tutors = [UserModel.User.from_orm(tutor_db) for tutor_db in tutors_db]
+
     return {tutor.id: tutor for tutor in tutors} if as_dict else tutors
 
 
@@ -48,4 +50,5 @@ def update(db: Session, user_id: str, user_update: UserModel.UserUpdate):
 
     db.commit()
     db.refresh(user)
+
     return user
