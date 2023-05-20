@@ -16,15 +16,14 @@ def create(db: Session, review_create: ReviewModel.ReviewCreate, student_id: str
         updated_at=date.today(),
     )
     db.add(review_db)
-    db.commit()
-    db.refresh(review_db)
+    db.flush()
     return ReviewModel.Review.from_orm(review_db)
 
 
 def delete(db: Session, review_id: int):
     review_db = get(db, review_id=review_id, as_db=True)
     db.delete(review_db)
-    db.commit()
+    db.flush()
 
 
 def get(db: Session, review_id: int, as_db: bool = False):
@@ -56,8 +55,7 @@ def get_all_by_course(db: Session, course_id: int):
 def update(db: Session, review_update: ReviewModel.ReviewUpdate):
     review_db = get(db, review_id=review_update.id, as_db=True)
     Updater.update(review_db, review_update)
-    db.commit()
-    db.refresh(review_db)
+    db.flush()
     return ReviewModel.Review.from_orm(review_db)
 
 

@@ -13,8 +13,7 @@ def create(db: Session, whiteboard_create: WhiteboardModel.WhiteboardCreate):
         created_at=date.today(),
     )
     db.add(whiteboard_db)
-    db.commit()
-    db.refresh(whiteboard_db)
+    db.flush()
     return WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
 
 

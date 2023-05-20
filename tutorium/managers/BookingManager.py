@@ -19,15 +19,14 @@ def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: 
         tutor_meeting_code=StringUtils.random_string(15),
     )
     db.add(booking_db)
-    db.commit()
-    db.refresh(booking_db)
+    db.flush()
     return BookingModel.Booking.from_orm(booking_db)
 
 
 def delete(db: Session, booking_id: int):
     booking_db = get(db, booking_id=booking_id, as_db=True)
     db.delete(booking_db)
-    db.commit()
+    db.flush()
 
 
 def get(db: Session, booking_id: int, as_db: bool = False):

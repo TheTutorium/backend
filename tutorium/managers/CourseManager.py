@@ -17,15 +17,14 @@ def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
         updated_at=date.today(),
     )
     db.add(course_db)
-    db.commit()
-    db.refresh(course_db)
+    db.flush()
     return CourseModel.Course.from_orm(course_db)
 
 
 def delete(db: Session, course_id: int):
     course_db = get(db, course_id=course_id, as_db=True)
     db.delete(course_db)
-    db.commit()
+    db.flush()
 
 
 def get(db: Session, course_id: int, as_db: bool = False):
@@ -53,8 +52,7 @@ def get_all_by_tutor(db: Session, tutor_id: str):
 def update(db: Session, course_update: CourseModel.CourseUpdate, tutor_id: str):
     course_db = get(db, course_id=course_update.id, as_db=True)
     Updater.update(course_db, course_update)
-    db.commit()
-    db.refresh(course_db)
+    db.flush()
     return CourseModel.Course.from_orm(course_db)
 
 

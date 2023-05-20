@@ -13,8 +13,7 @@ def create(
         **availability_create.dict(), tutor_id=tutor_id
     )
     db.add(availability_db)
-    db.commit()
-    db.refresh(availability_db)
+    db.flush()
     return AvailabilityModel.Availability.from_orm(availability_db)
 
 

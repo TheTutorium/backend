@@ -15,15 +15,14 @@ def create(db: Session, user_create: UserModel.UserCreate):
         updated_at=date.today(),
     )
     db.add(user_db)
-    db.commit()
-    db.refresh(user_db)
+    db.flush()
     return UserModel.User.from_orm(user_db)
 
 
 def delete(db: Session, user_id: str):
     user_db = get(db, user_id=user_id, as_db=True)
     db.delete(user_db)
-    db.commit()
+    db.flush()
 
 
 def get(db: Session, user_id: str, as_db: bool = True):
@@ -48,6 +47,5 @@ def is_tutor(db: Session, user_id: str):
 def update(db: Session, user_id: str, user_update: UserModel.UserUpdate):
     user_db = get(db, user_id=user_id, as_db=True)
     Updater.update(user_db, user_update)
-    db.commit()
-    db.refresh(user_db)
+    db.flush()
     return UserModel.User.from_orm(user_db)

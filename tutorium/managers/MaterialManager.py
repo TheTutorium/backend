@@ -24,22 +24,20 @@ def create(
         path="NA",
     )
     db.add(material_db)
-    db.commit()
-    db.refresh(material_db)
+    db.flush()
 
     path = f"materials/{material_db.course_id}/{material_db.id}"
     _save_file(file=file, path=path)
 
     setattr(material_db, "path", path)
-    db.commit()
-    db.refresh(material_db)
+    db.flush()
     return MaterialModel.Material.from_orm(material_db)
 
 
 def delete(db: Session, material_id: int):
     material_db = get(db, material_id=material_id, as_db=True)
     db.delete(material_db)
-    db.commit()
+    db.flush()
 
 
 def download(db: Session, material_id: int):
