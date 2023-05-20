@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
-from ..managers import WhiteboardManager
+from ..managers import BookingManager, WhiteboardManager
 from ..models import WhiteboardModel
+from ..utils.Exceptions import UnauthorizedException
 from ..utils.Middleware import authenitcate_tutor, authenticate
 
 whiteboard_api_router = APIRouter(prefix="/whiteboards", tags=["whiteboards"])
@@ -15,9 +16,15 @@ async def create(
     db: Session = Depends(get_db),
     tutor_id: str = Depends(authenitcate_tutor),
 ):
-    return WhiteboardManager.create(
-        db, tutor_id=tutor_id, whiteboard_create=whiteboard_create
-    )
+    if not BookingManager.is_user_in_booking(
+        db, booking_id=whiteboard_create.booking_id, user_id=tutor_id
+    ):
+        raise UnauthorizedException(
+            user_id=tutor_id,
+            custom_message=f"Tutow with id {tutor_id} is not in this booking with id {whiteboard_create.booking_id}",
+        )
+
+    return WhiteboardManager.create(db, whiteboard_create=whiteboard_create)
 
 
 @whiteboard_api_router.get(
@@ -28,6 +35,14 @@ def get_by_booking_id(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
+    if not BookingManager.is_user_in_booking(
+        db, booking_id=booking_id, user_id=user_id
+    ):
+        raise UnauthorizedException(
+            user_id=user_id,
+            custom_message=f"User with id {user_id} is not in this booking with id {booking_id}",
+        )
+
     return WhiteboardManager.get_by_booking_id(
         db, booking_id=booking_id, user_id=user_id
     )

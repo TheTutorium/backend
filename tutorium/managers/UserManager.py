@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import UserModel
+from ..utils import Updater
 from ..utils.Exceptions import NotFoundException
 
 
@@ -16,7 +17,6 @@ def create(db: Session, user_create: UserModel.UserCreate):
     db.add(user_db)
     db.commit()
     db.refresh(user_db)
-
     return UserModel.User.from_orm(user_db)
 
 
@@ -37,7 +37,6 @@ def get(db: Session, user_id: str, as_db: bool = True):
 def get_all_tutors(db: Session, as_dict: bool = False):
     tutors_db = db.query(Schema.User).filter(Schema.User.is_tutor).all()
     tutors = list(map(UserModel.User.from_orm, tutors_db))
-
     return {tutor.id: tutor for tutor in tutors} if as_dict else tutors
 
 
@@ -48,13 +47,7 @@ def is_tutor(db: Session, user_id: str):
 
 def update(db: Session, user_id: str, user_update: UserModel.UserUpdate):
     user_db = get(db, user_id=user_id, as_db=True)
-
-    setattr(user_db, "updated_at", date.today())
-    for attr, value in user_update:
-        if value is not None:
-            setattr(user_db, attr, value)
-
+    Updater.update(user_db, user_update)
     db.commit()
     db.refresh(user_db)
-
     return UserModel.User.from_orm(user_db)

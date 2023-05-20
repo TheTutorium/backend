@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from ..database.Database import get_db
 from ..managers import CourseManager, UserManager
 from ..models import CourseModel, UserModel
+from ..utils.ExceptionHandlers import UnauthorizedException
 from ..utils.Middleware import authenitcate_tutor, authenticate
 
 course_api_router = APIRouter(prefix="/courses", tags=["courses"])
@@ -28,7 +29,13 @@ async def delete(
     db: Session = Depends(get_db),
     tutor_id: str = Depends(authenitcate_tutor),
 ):
-    CourseManager.delete(db, course_id=course_id, tutor_id=tutor_id)
+    if not CourseManager.is_tutor_in_course(db, course_id=course_id, tutor_id=tutor_id):
+        raise UnauthorizedException(
+            user_id=tutor_id,
+            custom_message=f"Tutor with id {tutor_id} does not own this course with id {course_id}",
+        )
+
+    CourseManager.delete(db, course_id=course_id)
 
 
 @course_api_router.get("/all/", response_model=list[CourseModel.CourseRead])
@@ -74,6 +81,14 @@ def update(
     db: Session = Depends(get_db),
     tutor_id: str = Depends(authenitcate_tutor),
 ):
+    if not CourseManager.is_tutor_in_course(
+        db, course_id=course_update.id, tutor_id=tutor_id
+    ):
+        raise UnauthorizedException(
+            user_id=tutor_id,
+            custom_message=f"Tutor with id {tutor_id} does not own this course with id {course_update.id}",
+        )
+
     course = CourseManager.update(db, course_update=course_update, tutor_id=tutor_id)
     tutor = UserManager.get(db, user_id=course.tutor_id)
     return _aggregate_tutor(course=course, tutor=tutor)
@@ -83,5 +98,5 @@ def _aggregate_tutor(course: CourseModel.Course, tutor: UserModel.User):
     return CourseModel.CourseRead(
         **course.dict(),
         tutor_first_name=tutor.first_name,
-        tutor_last_name=tutor.last_name
+        tutor_last_name=tutor.last_name,
     )

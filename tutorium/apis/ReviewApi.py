@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from ..database.Database import get_db
 from ..managers import ReviewManager
 from ..models import ReviewModel
+from ..utils.Exceptions import UnauthorizedException
 from ..utils.Middleware import authenitcate_student, authenticate
 
 review_api_router = APIRouter(prefix="/reviews", tags=["reviews"])
@@ -24,7 +25,15 @@ async def delete(
     db: Session = Depends(get_db),
     student_id: str = Depends(authenitcate_student),
 ):
-    ReviewManager.delete(db, review_id=review_id, student_id=student_id)
+    if not ReviewManager.does_student_own_review(
+        db, review_id=review_id, student_id=student_id
+    ):
+        raise UnauthorizedException(
+            user_id=student_id,
+            custom_message=f"Student with id {student_id} does not own this review with id {review_id}",
+        )
+
+    ReviewManager.delete(db, review_id=review_id)
 
 
 @review_api_router.get(
@@ -44,4 +53,12 @@ def update(
     db: Session = Depends(get_db),
     student_id: str = Depends(authenitcate_student),
 ):
-    return ReviewManager.update(db, review_update=review_update, student_id=student_id)
+    if not ReviewManager.does_student_own_review(
+        db, review_id=review_update.id, student_id=student_id
+    ):
+        raise UnauthorizedException(
+            user_id=student_id,
+            custom_message=f"Student with id {student_id} does not own this review with id {review_update.id}",
+        )
+
+    return ReviewManager.update(db, review_update=review_update)

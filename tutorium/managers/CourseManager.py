@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from ..database import Schema
 from ..managers import BookingManager
 from ..models import CourseModel
-from ..utils.ExceptionHandlers import NotFoundException, UnauthorizedException
+from ..utils import Updater
+from ..utils.ExceptionHandlers import NotFoundException
 
 
 def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
@@ -18,25 +19,13 @@ def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
     db.add(course_db)
     db.commit()
     db.refresh(course_db)
-
     return CourseModel.Course.from_orm(course_db)
 
 
-def delete(db: Session, course_id: int, tutor_id: str):
+def delete(db: Session, course_id: int):
     course_db = get(db, course_id=course_id, as_db=True)
-    if course_db.tutor_id != tutor_id:
-        raise UnauthorizedException(
-            user_id=tutor_id,
-            custom_message=f"Tutor with id {tutor_id} does not own this course with id {course_id}",
-        )
-
     db.delete(course_db)
     db.commit()
-
-
-def does_tutor_own_course(db: Session, course_id: int, tutor_id: str):
-    course_db = get(db, course_id=course_id)
-    return tutor_id == course_db.tutor_id
 
 
 def get(db: Session, course_id: int, as_db: bool = False):
@@ -60,29 +49,23 @@ def get_all_by_tutor(db: Session, tutor_id: str):
     )
 
 
+def update(db: Session, course_update: CourseModel.CourseUpdate, tutor_id: str):
+    course_db = get(db, course_id=course_update.id, as_db=True)
+    Updater.update(course_db, course_update)
+    db.commit()
+    db.refresh(course_db)
+    return CourseModel.Course.from_orm(course_db)
+
+
 def is_user_in_course(db: Session, course_id: int, user_id: str):
-    return does_tutor_own_course(
+    return is_tutor_in_course(
         db, course_id=course_id, tutor_id=user_id
     ) or _is_student_in_course(db, course_id=course_id, student_id=user_id)
 
 
-def update(db: Session, course_update: CourseModel.CourseUpdate, tutor_id: str):
-    course_db = get(db, course_id=course_update.id, as_db=True)
-    if course_db.tutor_id != tutor_id:
-        raise UnauthorizedException(
-            user_id=tutor_id,
-            custom_message=f"Tutor with id {tutor_id} does not own this course with id {course_update.id}",
-        )
-
-    setattr(course_db, "updated_at", date.today())
-    for attr, value in course_update:
-        if value is not None and attr != "id":
-            setattr(course_db, attr, value)
-
-    db.commit()
-    db.refresh(course_db)
-
-    return CourseModel.Course.from_orm(course_db)
+def is_tutor_in_course(db: Session, course_id: int, tutor_id: str):
+    course_db = get(db, course_id=course_id)
+    return tutor_id == course_db.tutor_id
 
 
 def _is_student_in_course(db: Session, course_id: int, student_id: str):
