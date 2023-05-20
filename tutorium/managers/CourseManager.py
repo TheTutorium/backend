@@ -3,14 +3,11 @@ from datetime import date
 from sqlalchemy.orm import Session
 
 from ..database import Schema
+from ..managers import BookingManager
 from ..models import CourseModel
-from . import UserManager
 
 
 def create(db: Session, course_create: CourseModel.CourseCreate, tutor_id: str):
-    if not UserManager.is_tutor(db, user_id=tutor_id):
-        raise Exception
-
     course_db = Schema.Course(
         **course_create.dict(),
         created_at=date.today(),
@@ -42,19 +39,16 @@ def get(db: Session, course_id: int, as_db: bool = False):
 
 
 def get_all(db: Session):
-    return [
-        CourseModel.Course.from_orm(course_db)
-        for course_db in db.query(Schema.Course).all()
-    ]
+    return list(map(CourseModel.Course.from_orm, db.query(Schema.Course).all()))
 
 
 def get_all_by_tutor(db: Session, tutor_id: str):
-    return [
-        CourseModel.Course.from_orm(course_db)
-        for course_db in db.query(Schema.Course)
-        .filter(Schema.Course.tutor_id == tutor_id)
-        .all()
-    ]
+    return list(
+        map(
+            CourseModel.Course.from_orm,
+            db.query(Schema.Course).filter(Schema.Course.tutor_id == tutor_id).all(),
+        )
+    )
 
 
 def does_tutor_own_course(db: Session, course_id: int, tutor_id: str):
@@ -62,5 +56,12 @@ def does_tutor_own_course(db: Session, course_id: int, tutor_id: str):
     return tutor_id == course_db.tutor_id
 
 
-def is_student_in_course(db: Session, course_id: int, student_id: str):
-    pass  # TODO
+def is_user_in_course(db: Session, course_id: int, user_id: str):
+    return does_tutor_own_course(
+        db, course_id=course_id, tutor_id=user_id
+    ) or _is_student_in_course(db, course_id=course_id, student_id=user_id)
+
+
+def _is_student_in_course(db: Session, course_id: int, student_id: str):
+    bookings = BookingManager.get_all_by_user(db, user_id=student_id)
+    return course_id in [booking.course_id for booking in bookings]

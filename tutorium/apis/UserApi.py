@@ -18,13 +18,13 @@ class WebhookUser(BaseModel):
     data: Dict[str, Any]
 
 
-@user_api_router.get("/is-tutor/", response_model=bool)
-async def is_tutor(
+@user_api_router.get("/all-tutors/", response_model=list[UserModel.PublicUserRead])
+def get_all_tutors(
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    _: Any = Depends(authenticate),
 ):
-    is_tutor = UserManager.is_tutor(db, user_id=user_id)
-    return is_tutor
+    users = UserManager.get_all_tutors(db)
+    return users
 
 
 @user_api_router.get("/detailed/", response_model=UserModel.UserRead)
@@ -36,13 +36,12 @@ def get_detailed(
     return user
 
 
-@user_api_router.get("/all-tutors/", response_model=list[UserModel.PublicUserRead])
-def get_all_tutors(
+@user_api_router.get("/is-tutor/", response_model=bool)
+async def is_tutor(
     db: Session = Depends(get_db),
-    _: Any = Depends(authenticate),
+    user_id: str = Depends(authenticate),
 ):
-    users = UserManager.get_all_tutors(db)
-    return users
+    return UserManager.is_tutor(db, user_id=user_id)
 
 
 @user_api_router.get("/{user_id}/", response_model=UserModel.PublicUserRead)
@@ -51,8 +50,7 @@ def get(
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    user = UserManager.get(db, user_id=user_id)
-    return user
+    return UserManager.get(db, user_id=user_id)
 
 
 @user_api_router.put("/", response_model=UserModel.UserRead)
@@ -61,12 +59,14 @@ def update(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    updated_user = UserManager.update(db, user_id=user_id, user_update=user_update)
-    return updated_user
+    return UserManager.update(db, user_id=user_id, user_update=user_update)
 
 
 @user_api_router.post("/webhook")
-async def webhook(weebhook_user: WebhookUser, db: Session = Depends(get_db)):
+async def webhook(
+    weebhook_user: WebhookUser,
+    db: Session = Depends(get_db),
+):
     if weebhook_user.type == "user.created":
         return UserManager.create(
             db,

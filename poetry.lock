@@ -688,6 +688,33 @@ files = [
 ]
 
 [[package]]
+name = "types-pyasn1"
+version = "0.4.0.5"
+description = "Typing stubs for pyasn1"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-pyasn1-0.4.0.5.tar.gz", hash = "sha256:d88aca717d15032a6e32050f473fbc73d880b81cb6408bfbea75a3a0bd43a0bd"},
+    {file = "types_pyasn1-0.4.0.5-py3-none-any.whl", hash = "sha256:c5d661b820922b9a99b984b6c2c051734b5ceaa8732206f7196055b5f799ddb6"},
+]
+
+[[package]]
+name = "types-python-jose"
+version = "3.3.4.7"
+description = "Typing stubs for python-jose"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-python-jose-3.3.4.7.tar.gz", hash = "sha256:33c033d313a02457b09874a7e516c75da2538069ffe30f779968482bd6f3b123"},
+    {file = "types_python_jose-3.3.4.7-py3-none-any.whl", hash = "sha256:896ba4b99c2da8f3546ef02db32e39d69f4ea75c0e9ed8ae3664bc40bc72c7d8"},
+]
+
+[package.dependencies]
+types-pyasn1 = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -721,4 +748,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.5.0)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "e581309884814b46913d67f369c18be138c9cd3ec3be5af53d987f073c7dfef0"
+content-hash = "37c977c851cafc59da45f4e56dc6388d12fd7605dd9069f956f51a809a960cb3"

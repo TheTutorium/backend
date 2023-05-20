@@ -2,22 +2,18 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwk, jwt
 from jose.utils import base64url_decode
+from sqlalchemy.orm import Session
+
+from ..database.Database import get_db
+from ..managers import UserManager
 
 security = HTTPBearer()
 
 
-# Define a dependency that handles authentication
 def authenticate(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    # Implement your authentication logic here
-    # You can check the credentials and perform any necessary validation
-    # For example, you might validate JWT tokens or check username/password
-
-    # If authentication fails, raise an HTTPException with appropriate status code and message
     if not credentials or credentials.scheme != "Bearer":
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    # If authentication succeeds, you can return the authenticated user or any other relevant data
-    # In this example, we are simply returning the username
     token = credentials.credentials
     jwks_json = {
         "keys": [
@@ -53,3 +49,23 @@ def authenticate(credentials: HTTPAuthorizationCredentials = Depends(security)):
         raise HTTPException(status_code=401, detail=str(e))
 
     return user_id
+
+
+def authenitcate_tutor(
+    db: Session = Depends(get_db), user_id: str = Depends(authenticate)
+):
+    if not UserManager.is_tutor(db, user_id=user_id):
+        raise Exception
+
+    tutor_id = user_id
+    return tutor_id
+
+
+def authenitcate_student(
+    db: Session = Depends(get_db), user_id: str = Depends(authenticate)
+):
+    if UserManager.is_tutor(db, user_id=user_id):
+        raise Exception
+
+    student_id = user_id
+    return student_id

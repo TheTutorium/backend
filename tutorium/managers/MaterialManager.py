@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import MaterialModel
-from . import CourseManager, UserManager
+from . import CourseManager
 
 
 def create(
@@ -44,51 +44,44 @@ def create(
 
 
 def delete(db: Session, material_id: int, tutor_id: str):
-    if not UserManager.is_tutor(db, user_id=tutor_id):
+    material_db = _get(db, material_id=material_id, user_id=tutor_id, as_db=True)
+    if not CourseManager.does_tutor_own_course(
+        db, course_id=material_db.course_id, tutor_id=tutor_id
+    ):
         raise Exception
 
-    material_db = get(db, material_id=material_id, user_id=tutor_id)
     db.delete(material_db)
     db.commit()
 
 
 def download(db: Session, material_id: int, user_id: str):
-    material_db = get(db, material_id=material_id, user_id=user_id)
+    material_db = _get(db, material_id=material_id, user_id=user_id)
     return FileResponse(material_db.path, filename=material_db.name)
 
 
-def get(db: Session, material_id: int, user_id: str):
+def get_all_by_course(db: Session, course_id: int, user_id: str):
+    if not CourseManager.is_user_in_course(db, course_id=course_id, user_id=user_id):
+        raise Exception
+
+    materials_db = (
+        db.query(Schema.Material).filter(Schema.Material.course_id == course_id).all()
+    )
+    return list(map(MaterialModel.Material.from_orm, materials_db))
+
+
+def _get(db: Session, material_id: int, user_id: str, as_db: bool = False):
     material_db = (
         db.query(Schema.Material).filter(Schema.Material.id == material_id).first()
     )
     if material_db is None:
         raise Exception
 
-    material = MaterialModel.Material.from_orm(material_db)
-    if not CourseManager.does_tutor_own_course(
-        db, course_id=material.course_id, tutor_id=user_id
-    ) and not CourseManager.is_student_in_course(
-        db, course_id=material.course_id, student_id=user_id
+    if not CourseManager.is_user_in_course(
+        db, course_id=int(material_db.course_id), user_id=user_id
     ):
         raise Exception
 
-    return material
-
-
-def get_all_by_course(db: Session, course_id: int, user_id: str):
-    if not CourseManager.does_tutor_own_course(
-        db, course_id=course_id, tutor_id=user_id
-    ) and not CourseManager.is_student_in_course(
-        db, course_id=course_id, student_id=user_id
-    ):
-        raise Exception
-
-    materials_db = (
-        db.query(Schema.Material).filter(Schema.Material.course_id == course_id).all()
-    )
-    return [
-        MaterialModel.Material.from_orm(material_db) for material_db in materials_db
-    ]
+    return material_db if as_db else MaterialModel.Material.from_orm(material_db)
 
 
 def _get_extension(filename: str | None):

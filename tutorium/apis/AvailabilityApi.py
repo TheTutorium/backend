@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from ..database.Database import get_db
 from ..managers import AvailabilityManager
 from ..models import AvailabilityModel
-from ..utils.Middleware import authenticate
+from ..utils.Middleware import authenitcate_tutor, authenticate
 
 availability_api_router = APIRouter(prefix="/availabilities", tags=["availabilities"])
 
@@ -15,10 +15,10 @@ availability_api_router = APIRouter(prefix="/availabilities", tags=["availabilit
 def create(
     availability_create: AvailabilityModel.AvailabilityCreate,
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    tutor_id: str = Depends(authenitcate_tutor),
 ):
     return AvailabilityManager.create(
-        db, availability_create=availability_create, tutor_id=user_id
+        db, availability_create=availability_create, tutor_id=tutor_id
     )
 
 
@@ -30,5 +30,5 @@ def get_all_by_tutor(
     db: Session = Depends(get_db),
     _: str = Depends(authenticate),
 ):
-    availabilities = AvailabilityManager.get_all_by_tutor(db, tutor_id=tutor_id)
-    return availabilities
+    print(AvailabilityManager.get_all_by_tutor(db, tutor_id=tutor_id))
+    return AvailabilityManager.get_all_by_tutor(db, tutor_id=tutor_id)

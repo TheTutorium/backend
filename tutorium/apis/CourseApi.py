@@ -4,11 +4,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from ..database.Database import get_db
-from ..managers import CourseManager
-from ..managers import UserManager
-from ..models import CourseModel
-from ..models import UserModel
-from ..utils.Middleware import authenticate
+from ..managers import CourseManager, UserManager
+from ..models import CourseModel, UserModel
+from ..utils.Middleware import authenitcate_tutor, authenticate
 
 course_api_router = APIRouter(prefix="/courses", tags=["courses"])
 
@@ -17,9 +15,9 @@ course_api_router = APIRouter(prefix="/courses", tags=["courses"])
 async def create(
     course_create: CourseModel.CourseCreate,
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    tutor_id: str = Depends(authenitcate_tutor),
 ):
-    course = CourseManager.create(db, course_create=course_create, tutor_id=user_id)
+    course = CourseManager.create(db, course_create=course_create, tutor_id=tutor_id)
     tutor = UserManager.get(db, user_id=course.tutor_id)
     return _aggregate_tutor(course=course, tutor=tutor)
 
@@ -28,9 +26,9 @@ async def create(
 async def delete(
     course_id: int,
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    tutor_id: str = Depends(authenitcate_tutor),
 ):
-    return CourseManager.delete(db, course_id=course_id, tutor_id=user_id)
+    CourseManager.delete(db, course_id=course_id, tutor_id=tutor_id)
 
 
 @course_api_router.get("/all/", response_model=list[CourseModel.CourseRead])

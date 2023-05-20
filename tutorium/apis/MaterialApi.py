@@ -4,20 +4,20 @@ from sqlalchemy.orm import Session
 from ..database.Database import get_db
 from ..managers import MaterialManager
 from ..models import MaterialModel
-from ..utils.Middleware import authenticate
+from ..utils.Middleware import authenitcate_tutor, authenticate
 
 material_api_router = APIRouter(prefix="/materials", tags=["materials"])
 
 
 @material_api_router.post("/", response_model=MaterialModel.MaterialRead)
 async def create(
-    material_create: MaterialModel.MaterialCreate = Depends(),
     file: UploadFile = File(...),
+    material_create: MaterialModel.MaterialCreate = Depends(),
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    tutor_id: str = Depends(authenitcate_tutor),
 ):
     return MaterialManager.create(
-        db, file=file, material_create=material_create, tutor_id=user_id
+        db, file=file, material_create=material_create, tutor_id=tutor_id
     )
 
 
@@ -25,9 +25,9 @@ async def create(
 async def delete(
     material_id: int,
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
+    tutor_id: str = Depends(authenitcate_tutor),
 ):
-    MaterialManager.delete(db, material_id=material_id, tutor_id=user_id)
+    MaterialManager.delete(db, material_id=material_id, tutor_id=tutor_id)
 
 
 @material_api_router.get("/download/{material_id}/")  # TODO
@@ -47,7 +47,4 @@ def get_all_by_course(
     db: Session = Depends(get_db),
     user_id: str = Depends(authenticate),
 ):
-    materials = MaterialManager.get_all_by_course(
-        db, course_id=course_id, user_id=user_id
-    )
-    return materials
+    return MaterialManager.get_all_by_course(db, course_id=course_id, user_id=user_id)

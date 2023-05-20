@@ -8,10 +8,10 @@ from . import BookingManager
 
 
 def create(
-    db: Session, user_id: str, whiteboard_create: WhiteboardModel.WhiteboardCreate
+    db: Session, tutor_id: str, whiteboard_create: WhiteboardModel.WhiteboardCreate
 ):
     if not BookingManager.is_user_in_booking(
-        db, booking_id=whiteboard_create.booking_id, user_id=user_id
+        db, booking_id=whiteboard_create.booking_id, user_id=tutor_id
     ):
         raise Exception
 

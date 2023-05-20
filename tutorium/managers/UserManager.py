@@ -19,17 +19,17 @@ def create(db: Session, user_create: UserModel.UserCreate):
     return UserModel.User.from_orm(user_db)
 
 
-def get(db: Session, user_id: str):
+def get(db: Session, user_id: str, as_db: bool = True):
     user_db = db.query(Schema.User).filter(Schema.User.id == user_id).first()
     if user_db is None:
         raise Exception
 
-    return UserModel.User.from_orm(user_db)
+    return user_db if as_db else UserModel.User.from_orm(user_db)
 
 
 def get_all_tutors(db: Session, as_dict: bool = False):
     tutors_db = db.query(Schema.User).filter(Schema.User.is_tutor).all()
-    tutors = [UserModel.User.from_orm(tutor_db) for tutor_db in tutors_db]
+    tutors = list(map(UserModel.User.from_orm, tutors_db))
 
     return {tutor.id: tutor for tutor in tutors} if as_dict else tutors
 
@@ -40,15 +40,14 @@ def is_tutor(db: Session, user_id: str):
 
 
 def update(db: Session, user_id: str, user_update: UserModel.UserUpdate):
-    user = get(db, user_id=user_id)
-    assert user is not None
+    user_db = get(db, user_id=user_id, as_db=True)
 
-    setattr(user, "updated_at", date.today())
+    setattr(user_db, "updated_at", date.today())
     for attr, value in user_update:
         if value is not None:
-            setattr(user, attr, value)
+            setattr(user_db, attr, value)
 
     db.commit()
-    db.refresh(user)
+    db.refresh(user_db)
 
-    return user
+    return UserModel.User.from_orm(user_db)
