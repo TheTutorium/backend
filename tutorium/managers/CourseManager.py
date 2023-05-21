@@ -35,6 +35,9 @@ def deactivate(db: Session, course_id: int):
 
 def delete_picture(db: Session, course_id: int):
     course_db = get(db, course_id=course_id, as_db=True)
+    if course_db.picture_path is None:
+        raise NotFoundException(entity="course picture", id="")
+
     picture_path = course_db.picture_path
     setattr(course_db, "picture_path", None)
     setattr(course_db, "updated_at", date.today())
@@ -44,8 +47,12 @@ def delete_picture(db: Session, course_id: int):
 
 def download_picture(db: Session, course_id: int):
     course_db = get(db, course_id=course_id)
+    if course_db.picture_path is None:
+        raise NotFoundException(entity="course picture", id="")
+
     return FileResponse(
-        path=course_db.picture_path, filename=os.path.basename(course_db.picture_path)
+        path=course_db.picture_path,
+        filename=os.path.basename(course_db.picture_path),
     )
 
 
@@ -81,10 +88,12 @@ def update(db: Session, course_update: CourseModel.CourseUpdate):
 
 
 def update_picture(db: Session, course_id: int, file: UploadFile):
-    course_db = get(db, course_id=course_id, as_db=True)
-    if course_db.picture_path:
-        delete_picture(db, course_id=course_db.id)
+    try:
+        delete_picture(db, course_id=course_id)
+    except NotFoundException:
+        pass
 
+    course_db = get(db, course_id=course_id, as_db=True)
     path = f"courses/{course_id}/{file.filename}"
     setattr(course_db, "picture_path", path)
     setattr(course_db, "updated_at", date.today())

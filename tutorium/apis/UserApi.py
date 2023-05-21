@@ -79,6 +79,8 @@ async def webhook(
             ),
         )
     if weebhook_user.type == "user.updated":
+        if weebhook_user.data.get("profile_image_url") is None:
+            return
         return UserManager.update(
             db,
             user_id=weebhook_user.data["id"],

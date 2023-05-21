@@ -11,9 +11,9 @@ class CourseBase(BaseModel):
 
 class Course(CourseBase):
     created_at: date
-    picture_path: str | None = None
     deactivated: bool
     id: int
+    picture_path: str | None = None
     updated_at: date
     tutor_id: str
 
