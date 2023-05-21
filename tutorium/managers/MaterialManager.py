@@ -46,7 +46,10 @@ def delete(db: Session, material_id: int):
 def download(db: Session, material_id: int):
     material_db = get(db, material_id=material_id)
     if not os.path.exists(material_db.path):
-        delete(db, material_id=material_id)  # Other deletion handled unproperly.
+        sub_db = db.begin().session
+        delete(sub_db, material_id=material_id)  # Other deletion handled unproperly.
+        sub_db.commit()
+        sub_db.close()
         raise NotFoundException(
             entity="material",
             id=material_id,

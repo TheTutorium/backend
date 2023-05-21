@@ -51,7 +51,12 @@ def download_picture(db: Session, course_id: int):
         raise NotFoundException(entity="course picture", id="")
 
     if not os.path.exists(course_db.picture_path):
-        delete_picture(db, course_id=course_id)  # Other deletion handled unproperly.
+        sub_db = db.begin().session
+        delete_picture(
+            sub_db, course_id=course_id
+        )  # Other deletion handled unproperly.
+        sub_db.commit()
+        sub_db.close()
         raise NotFoundException(
             entity="course picture",
             id="",
