@@ -1,4 +1,3 @@
-import os
 from datetime import date
 
 from fastapi import UploadFile
@@ -7,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import MaterialModel
+from ..utils import FileUtils
 from ..utils.ExceptionHandlers import BadRequestException, NotFoundException
 
 
@@ -17,7 +17,7 @@ def create(
 ):
     _create_checks(material_create=material_create)
 
-    name = f"{material_create.name}{_get_extension(file.filename)}"
+    name = f"{material_create.name}{FileUtils.get_extension(file.filename)}"
     material_db = Schema.Material(
         created_at=date.today(),
         course_id=material_create.course_id,
@@ -30,7 +30,7 @@ def create(
     path = f"materials/{material_db.course_id}/{material_db.id}"
     setattr(material_db, "path", path)
     db.flush()
-    _save_file(file=file, path=path)
+    FileUtils.save_file(file=file, path=path)
 
     return MaterialModel.Material.from_orm(material_db)
 
@@ -39,7 +39,7 @@ def delete(db: Session, material_id: int):
     material_db = get(db, material_id=material_id, as_db=True)
     db.delete(material_db)
     db.flush()
-    _delete_file(material_db.path)
+    FileUtils.delete_file(material_db.path)
 
 
 def download(db: Session, material_id: int):
@@ -62,27 +62,6 @@ def get_all_by_course(db: Session, course_id: int):
         db.query(Schema.Material).filter(Schema.Material.course_id == course_id).all()
     )
     return list(map(MaterialModel.Material.from_orm, materials_db))
-
-
-def _delete_file(path: str):
-    os.remove(path)
-
-
-def _get_extension(filename: str | None):
-    return (
-        f".{filename.split('.')[-1].lower()}"
-        if filename is not None and "." in filename
-        else ""
-    )
-
-
-def _save_file(file: UploadFile, path: str):
-    folder = os.path.dirname(path)
-    os.makedirs(folder, exist_ok=True)
-
-    with open(path, "wb") as f:
-        contents = file.file.read()
-        f.write(contents)
 
 
 def _create_checks(material_create: MaterialModel.MaterialCreate):

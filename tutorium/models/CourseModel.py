@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 
 class CourseBase(BaseModel):
-    course_pic: str | None = None
     description: str
     duration: int
     name: str
@@ -12,6 +11,7 @@ class CourseBase(BaseModel):
 
 class Course(CourseBase):
     created_at: date
+    picture_path: str | None = None
     deactivated: bool
     id: int
     updated_at: date
@@ -31,7 +31,6 @@ class CourseRead(Course):
 
 
 class CourseUpdate(BaseModel):
-    course_pic: str | None = None
     description: str | None = None
     duration: int | None = None
     id: int

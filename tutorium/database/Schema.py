@@ -20,7 +20,7 @@ class Booking(Base):
     id = Column(Integer, primary_key=True)
 
     created_at = Column(Date)
-    end_time = Column(DateTime)
+    duration = Column(Integer)  # In minutes
     start_time = Column(DateTime)
     student_meeting_code = Column(String(15), unique=True)
     tutor_meeting_code = Column(String(15), unique=True)
@@ -34,12 +34,12 @@ class Course(Base):
 
     id = Column(Integer, primary_key=True)
 
-    course_pic = Column(String(255), nullable=True)
     created_at = Column(Date)
     deactivated = Column(Boolean, default=False)
     description = Column(String(255))
     duration = Column(Integer)  # In minutes
     name = Column(String(255))
+    picture_path = Column(String(1023), nullable=True)
     updated_at = Column(Date)
 
     tutor_id = Column(String(255))

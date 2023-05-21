@@ -28,7 +28,7 @@ class BookingRead(Booking):
     course_description: str
     course_duration: int
     course_name: str
-    course_pic: str | None
+    course_picture_path: str | None
     tutor_first_name: str
     tutor_id: str
     tutor_last_name: str

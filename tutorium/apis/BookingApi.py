@@ -68,7 +68,7 @@ def _aggregate(
         course_description=course.description,
         course_duration=course.duration,
         course_name=course.name,
-        course_pic=course.course_pic,
+        course_picture_path=course.picture_path,
         tutor_first_name=tutor.first_name,
         tutor_id=tutor.id,
         tutor_last_name=tutor.last_name,

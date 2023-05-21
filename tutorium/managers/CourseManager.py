@@ -1,11 +1,14 @@
+import os
 from datetime import date
 
+from fastapi import UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..managers import BookingManager
 from ..models import CourseModel
-from ..utils import Updater
+from ..utils import FileUtils, Updater
 from ..utils.ExceptionHandlers import BadRequestException, NotFoundException
 
 
@@ -30,6 +33,22 @@ def deactivate(db: Session, course_id: int):
     db.flush()
 
 
+def delete_picture(db: Session, course_id: int):
+    course_db = get(db, course_id=course_id, as_db=True)
+    picture_path = course_db.picture_path
+    setattr(course_db, "picture_path", None)
+    setattr(course_db, "updated_at", date.today())
+    db.flush()
+    FileUtils.delete_file(picture_path)
+
+
+def download_picture(db: Session, course_id: int):
+    course_db = get(db, course_id=course_id)
+    return FileResponse(
+        path=course_db.picture_path, filename=os.path.basename(course_db.picture_path)
+    )
+
+
 def get(db: Session, course_id: int, as_db: bool = False):
     course_db = db.query(Schema.Course).filter(Schema.Course.id == course_id).first()
     if course_db is None:
@@ -52,13 +71,27 @@ def get_all_by_tutor(db: Session, tutor_id: str):
     )
 
 
-def update(db: Session, course_update: CourseModel.CourseUpdate, tutor_id: str):
+def update(db: Session, course_update: CourseModel.CourseUpdate):
     _create_update_checks(course=course_update)
 
     course_db = get(db, course_id=course_update.id, as_db=True)
     Updater.update(course_db, course_update)
     db.flush()
     return CourseModel.Course.from_orm(course_db)
+
+
+def update_picture(db: Session, course_id: int, file: UploadFile):
+    course_db = get(db, course_id=course_id, as_db=True)
+    if course_db.picture_path:
+        delete_picture(db, course_id=course_db.id)
+
+    path = f"courses/{course_id}/{file.filename}"
+    setattr(course_db, "picture_path", path)
+    setattr(course_db, "updated_at", date.today())
+    db.flush()
+    FileUtils.save_file(file=file, path=path)
+
+    return path
 
 
 def is_user_in_course(db: Session, course_id: int, user_id: str):
