@@ -1,3 +1,4 @@
+import os
 from datetime import date
 
 from fastapi import UploadFile
@@ -15,7 +16,7 @@ def create(
     file: UploadFile,
     material_create: MaterialModel.MaterialCreate,
 ):
-    _create_checks(material_create=material_create)
+    _create_checks(file=file, material_create=material_create)
 
     name = f"{material_create.name}{FileUtils.get_extension(file.filename)}"
     material_db = Schema.Material(
@@ -44,6 +45,14 @@ def delete(db: Session, material_id: int):
 
 def download(db: Session, material_id: int):
     material_db = get(db, material_id=material_id)
+    if not os.path.exists(material_db.path):
+        delete(db, material_id=material_id)  # Other deletion handled unproperly.
+        raise NotFoundException(
+            entity="material",
+            id=material_id,
+            custom_message=f"Material with id {material_id} cannot be detected anymore. Please reupload this material. This is an internal error.",
+        )
+
     return FileResponse(material_db.path, filename=material_db.name)
 
 
@@ -64,11 +73,18 @@ def get_all_by_course(db: Session, course_id: int):
     return list(map(MaterialModel.Material.from_orm, materials_db))
 
 
-def _create_checks(material_create: MaterialModel.MaterialCreate):
+def _create_checks(file: UploadFile, material_create: MaterialModel.MaterialCreate):
     if material_create.name and len(material_create.name) < 5:
         raise BadRequestException(
             entity="material",
             id="",
             operation="POST",
             custom_message=f"Material name cannot be smaller than five characters. Description: {material_create.name}",
+        )
+    if file.size is not None and file.size > 20000000:
+        BadRequestException(
+            entity="material",
+            id="",
+            operation="POST",
+            custom_message="Material size cannot be larger than 20 MB",
         )

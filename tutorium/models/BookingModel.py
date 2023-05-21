@@ -10,7 +10,7 @@ class BookingBase(BaseModel):
 
 class Booking(BookingBase):
     created_at: date
-    end_time: datetime
+    duration: int
     id: int
     student_id: str
     student_meeting_code: str

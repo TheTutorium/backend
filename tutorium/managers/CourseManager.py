@@ -50,6 +50,14 @@ def download_picture(db: Session, course_id: int):
     if course_db.picture_path is None:
         raise NotFoundException(entity="course picture", id="")
 
+    if not os.path.exists(course_db.picture_path):
+        delete_picture(db, course_id=course_id)  # Other deletion handled unproperly.
+        raise NotFoundException(
+            entity="course picture",
+            id="",
+            custom_message="Picture cannot be detected anymore. Please reupload course picture. This is an internal error.",
+        )
+
     return FileResponse(
         path=course_db.picture_path,
         filename=os.path.basename(course_db.picture_path),
@@ -88,6 +96,8 @@ def update(db: Session, course_update: CourseModel.CourseUpdate):
 
 
 def update_picture(db: Session, course_id: int, file: UploadFile):
+    _update_picture_check(db, file=file)
+
     try:
         delete_picture(db, course_id=course_id)
     except NotFoundException:
@@ -140,4 +150,21 @@ def _create_update_checks(course: CourseModel.CourseCreate | CourseModel.CourseU
             id="",
             operation="POST|UPDATE",
             custom_message=f"Course name cannot be smaller than five characters. Given ame: {course.name}",
+        )
+
+
+def _update_picture_check(db: Session, file: UploadFile):
+    if file.filename is None:
+        BadRequestException(
+            entity="course picture",
+            id="",
+            operation="UPDATE",
+            custom_message="Picture name cannot be emtpy.",
+        )
+    if file.size is not None and file.size > 10000000:
+        BadRequestException(
+            entity="course picture",
+            id="",
+            operation="UPDATE",
+            custom_message="Picture size cannot be larger than 10 MB",
         )

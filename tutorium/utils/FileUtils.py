@@ -4,7 +4,10 @@ from fastapi import UploadFile
 
 
 def delete_file(path: str):
-    os.remove(path)
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
 
 
 def get_extension(filename: str | None):

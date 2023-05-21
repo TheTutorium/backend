@@ -14,7 +14,7 @@ def create(db: Session, booking_create: BookingModel.BookingCreate, student_id: 
     booking_db = Schema.Booking(
         **booking_create.dict(),
         created_at=date.today(),
-        end_time=datetime.now(),
+        duration=60,
         student_id=student_id,
         student_meeting_code=StringUtils.random_string(15),
         tutor_meeting_code=StringUtils.random_string(15),

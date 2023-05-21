@@ -94,12 +94,12 @@ def _is_booking_reviewed(db: Session, booking_id: int):
 
 
 def _checks_on_booking(db: Session, booking: BookingModel.Booking, user_id: str):
-    if booking.end_time > datetime.now():
+    if booking.start_time > datetime.now():
         raise BadRequestException(
             entity="booking",
             id=booking.id,
             operation="POST",
-            custom_message=f"Student with id {user_id} cannot review this booking yet because it is not passed. End Time: {booking.end_time}",
+            custom_message=f"Student with id {user_id} cannot review this booking yet because it is not passed. Start Time: {booking.start_time}",
         )
     if _is_booking_reviewed(db, booking_id=booking.id):
         raise BadRequestException(
