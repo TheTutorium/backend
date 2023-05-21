@@ -36,12 +36,11 @@ def get_by_booking_id(db: Session, booking_id: int):
 
 
 def _does_booking_have_whiteboard(db: Session, booking_id: int):
-    whiteboard = (
-        db.query(Schema.Whiteboard)
-        .filter(Schema.Whiteboard.booking_id == booking_id)
-        .first()
-    )
-    return whiteboard is not None
+    try:
+        get_by_booking_id(db, booking_id=booking_id)
+        return True
+    except NotFoundException:
+        return False
 
 
 def _create_checks(db: Session, booking_id: int):

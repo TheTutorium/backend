@@ -74,7 +74,7 @@ def is_tutor_in_course(db: Session, course_id: int, tutor_id: str):
 
 def _is_student_in_course(db: Session, course_id: int, student_id: str):
     bookings = BookingManager.get_all_by_user(db, user_id=student_id)
-    return course_id in [booking.course_id for booking in bookings]
+    return course_id in set(booking.course_id for booking in bookings)
 
 
 def _create_update_checks(course: CourseModel.CourseCreate | CourseModel.CourseUpdate):

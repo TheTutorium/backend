@@ -73,14 +73,14 @@ def is_user_in_booking(db: Session, booking_id: int, user_id: str):
 
 
 def is_student_in_booking(db: Session, booking_id: int, student_id: str):
-    booking_db = get(db, booking_id=booking_id)
-    return booking_db.student_id == student_id
+    booking = get(db, booking_id=booking_id)
+    return booking.student_id == student_id
 
 
 def is_tutor_in_booking(db: Session, booking_id: int, tutor_id: str):
-    booking_db = get(db, booking_id=booking_id)
-    course_db = CourseManager.get(db, course_id=booking_db.course_id)
-    return course_db.tutor_id == tutor_id
+    booking = get(db, booking_id=booking_id)
+    course = CourseManager.get(db, course_id=booking.course_id)
+    return course.tutor_id == tutor_id
 
 
 def _delete_checks(booking_db: Schema.Booking):
