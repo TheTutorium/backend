@@ -31,6 +31,8 @@ class UserRead(User):
 
 class PublicUserRead(UserBase):
     created_at: date
+    hours_given: int | None
+    rating: float | None
     updated_at: date
 
     class Config:

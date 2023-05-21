@@ -1,9 +1,11 @@
-from datetime import date
+import math
+from datetime import date, datetime
 
 from sqlalchemy.orm import Session
 
 from ..database import Schema
-from ..models import UserModel
+from ..managers import BookingManager
+from ..models import ReviewModel, UserModel
 from ..utils import Updater
 from ..utils.Exceptions import BadRequestException, NotFoundException
 
@@ -25,7 +27,7 @@ def delete(db: Session, user_id: str):
     db.flush()
 
 
-def get(db: Session, user_id: str, as_db: bool = True):
+def get(db: Session, user_id: str, as_db: bool = False):
     user_db = db.query(Schema.User).filter(Schema.User.id == user_id).first()
     if user_db is None:
         raise NotFoundException(entity="user", id=user_id)
@@ -33,10 +35,37 @@ def get(db: Session, user_id: str, as_db: bool = True):
     return user_db if as_db else UserModel.User.from_orm(user_db)
 
 
+def get_all_reviews_of_tutor(db: Session, tutor_id: str):
+    booking_ids = [
+        booking.id for booking in BookingManager.get_all_by_user(db, user_id=tutor_id)
+    ]
+    reviews_db = (
+        db.query(Schema.Review).filter(Schema.Review.booking_id.in_(booking_ids)).all()
+    )
+    return list(map(ReviewModel.Review.from_orm, reviews_db))
+
+
 def get_all_tutors(db: Session, as_dict: bool = False):
     tutors_db = db.query(Schema.User).filter(Schema.User.is_tutor).all()
     tutors = list(map(UserModel.User.from_orm, tutors_db))
     return {tutor.id: tutor for tutor in tutors} if as_dict else tutors
+
+
+def get_hours_given_of_tutor(db: Session, tutor_id: str):
+    bookings = BookingManager.get_all_by_user(db, user_id=tutor_id)
+    past_booking_durations = [
+        booking.duration for booking in bookings if booking.start_time < datetime.now()
+    ]
+    return math.ceil(sum(past_booking_durations) / 60)
+
+
+def get_rating_of_tutor(db: Session, tutor_id: str):
+    ratings = [
+        review.rating for review in get_all_reviews_of_tutor(db, tutor_id=tutor_id)
+    ]
+    if len(ratings) == 0:
+        return -1
+    return round(sum(ratings) / len(ratings), 1)
 
 
 def is_tutor(db: Session, user_id: str):

@@ -23,7 +23,7 @@ def get_all_tutors(
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    return UserManager.get_all_tutors(db)
+    return [_aggregate(db, tutor=tutor) for tutor in UserManager.get_all_tutors(db)]
 
 
 @user_api_router.get("/detailed/", response_model=UserModel.UserRead)
@@ -48,7 +48,8 @@ def get(
     db: Session = Depends(get_db),
     _: Any = Depends(authenticate),
 ):
-    return UserManager.get(db, user_id=user_id)
+    user = UserManager.get(db, user_id=user_id)
+    return _aggregate(db, tutor=user) if user.is_tutor else user
 
 
 @user_api_router.put("/", response_model=UserModel.UserRead)
@@ -90,3 +91,11 @@ async def webhook(
         )
     if weebhook_user.type == "user.deleted":
         UserManager.delete(db, user_id=weebhook_user.data["id"])
+
+
+def _aggregate(db: Session, tutor: UserModel.User):
+    return UserModel.PublicUserRead(
+        **tutor.dict(),
+        hours_given=UserManager.get_hours_given_of_tutor(db, tutor_id=tutor.id),
+        rating=UserManager.get_rating_of_tutor(db, tutor_id=tutor.id),
+    )
