@@ -72,11 +72,11 @@ async def webhook(
             user_create=UserModel.UserCreate(
                 description="",
                 email=weebhook_user.data["email_addresses"][0]["email_address"],
-                first_name=weebhook_user.data["first_name"],
+                first_name=weebhook_user.data.get("first_name", ""),
                 id=weebhook_user.data["id"],
                 is_tutor=False,
-                last_name=weebhook_user.data["last_name"],
-                profile_pic=weebhook_user.data["profile_image_url"],
+                last_name=weebhook_user.data.get("last_name", ""),
+                profile_pic=weebhook_user.data.get("profile_image_url", None),
             ),
         )
     if weebhook_user.type == "user.updated":
