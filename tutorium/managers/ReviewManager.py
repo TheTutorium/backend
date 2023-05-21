@@ -39,6 +39,20 @@ def get(db: Session, review_id: int, as_db: bool = False):
     return review_db if as_db else ReviewModel.Review.from_orm(review_db)
 
 
+def get_by_booking(db: Session, booking_id: int):
+    review_db = (
+        db.query(Schema.Review).filter(Schema.Review.booking_id == booking_id).first()
+    )
+    if review_db is None:
+        raise NotFoundException(
+            entity="review",
+            id="",
+            custom_message=f"Booking with id {booking_id} does not have a review yet.",
+        )
+
+    return ReviewModel.Review.from_orm(review_db)
+
+
 def get_all_by_course(db: Session, course_id: int):
     reviews = (
         db.query(Schema.Review)
@@ -72,10 +86,11 @@ def does_student_own_the_review(db: Session, review_id: int, student_id: str):
 
 
 def _is_booking_reviewed(db: Session, booking_id: int):
-    review = (
-        db.query(Schema.Review).filter(Schema.Review.booking_id == booking_id).first()
-    )
-    return review is not None
+    try:
+        get_by_booking(db, booking_id=booking_id)
+        return True
+    except NotFoundException:
+        return False
 
 
 def _checks_on_booking(db: Session, booking: BookingModel.Booking, user_id: str):

@@ -69,7 +69,7 @@ def get_all_by_user(db: Session, user_id: str):
 def is_user_in_booking(db: Session, booking_id: int, user_id: str):
     return is_student_in_booking(
         db, booking_id=booking_id, student_id=user_id
-    ) or is_tutor_in_booking(db, booking_id=booking_id, tutor_id=user_id)
+    ) or _is_tutor_in_booking(db, booking_id=booking_id, tutor_id=user_id)
 
 
 def is_student_in_booking(db: Session, booking_id: int, student_id: str):
@@ -77,7 +77,7 @@ def is_student_in_booking(db: Session, booking_id: int, student_id: str):
     return booking.student_id == student_id
 
 
-def is_tutor_in_booking(db: Session, booking_id: int, tutor_id: str):
+def _is_tutor_in_booking(db: Session, booking_id: int, tutor_id: str):
     booking = get(db, booking_id=booking_id)
     course = CourseManager.get(db, course_id=booking.course_id)
     return course.tutor_id == tutor_id

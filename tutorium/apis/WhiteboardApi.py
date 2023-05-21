@@ -5,7 +5,7 @@ from ..database.Database import get_db
 from ..managers import BookingManager, WhiteboardManager
 from ..models import WhiteboardModel
 from ..utils.Exceptions import UnauthorizedException
-from ..utils.Middleware import authenitcate_tutor, authenticate
+from ..utils.Middleware import authenticate
 
 whiteboard_api_router = APIRouter(prefix="/whiteboards", tags=["whiteboards"])
 
@@ -14,14 +14,14 @@ whiteboard_api_router = APIRouter(prefix="/whiteboards", tags=["whiteboards"])
 async def create(
     whiteboard_create: WhiteboardModel.WhiteboardCreate,
     db: Session = Depends(get_db),
-    tutor_id: str = Depends(authenitcate_tutor),
+    user_id: str = Depends(authenticate),
 ):
-    if not BookingManager.is_tutor_in_booking(
-        db, booking_id=whiteboard_create.booking_id, tutor_id=tutor_id
+    if not BookingManager.is_user_in_booking(
+        db, booking_id=whiteboard_create.booking_id, user_id=user_id
     ):
         raise UnauthorizedException(
-            user_id=tutor_id,
-            custom_message=f"Tutow with id {tutor_id} is not in this booking with id {whiteboard_create.booking_id}",
+            user_id=user_id,
+            custom_message=f"User with id {user_id} is not in this booking with id {whiteboard_create.booking_id}",
         )
 
     return WhiteboardManager.create(db, whiteboard_create=whiteboard_create)

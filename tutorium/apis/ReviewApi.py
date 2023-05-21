@@ -45,6 +45,25 @@ async def delete(
 
 
 @review_api_router.get(
+    "/by-booking/{booking_id}/", response_model=ReviewModel.ReviewRead
+)
+def get_by_booking(
+    booking_id: int,
+    db: Session = Depends(get_db),
+    student_id: str = Depends(authenitcate_student),
+):
+    if not BookingManager.is_student_in_booking(
+        db, booking_id=booking_id, student_id=student_id
+    ):
+        raise UnauthorizedException(
+            user_id=student_id,
+            custom_message=f"Student with id {student_id} does not belong to the this booking with id {booking_id}",
+        )
+
+    return ReviewManager.get_by_booking(db, booking_id=booking_id)
+
+
+@review_api_router.get(
     "/all-by-course/{course_id}/", response_model=list[ReviewModel.ReviewRead]
 )
 def get_all_by_course(
