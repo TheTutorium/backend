@@ -67,15 +67,34 @@ async def webhook(
     db: Session = Depends(get_db),
 ):
     if weebhook_user.type == "user.created":
+        if (
+            weebhook_user.data.get("email_addresses") is None
+            or len(weebhook_user.data["email_addresses"]) == 0
+            or weebhook_user.data["email_addresses"][0].get("email_address") is None
+        ):
+            email = ""
+        else:
+            email = weebhook_user.data["email_addresses"][0]["email_address"]
+
+        if weebhook_user.data.get("first_name") is None:
+            first_name = ""
+        else:
+            first_name = weebhook_user.data["first_name"]
+
+        if weebhook_user.data.get("last_name") is None:
+            last_name = ""
+        else:
+            last_name = weebhook_user.data["last_name"]
+
         return UserManager.create(
             db,
             user_create=UserModel.UserCreate(
                 description="",
-                email=weebhook_user.data["email_addresses"][0]["email_address"],
-                first_name=weebhook_user.data.get("first_name", ""),
+                email=email,
+                first_name=first_name,
                 id=weebhook_user.data["id"],
                 is_tutor=False,
-                last_name=weebhook_user.data.get("last_name", ""),
+                last_name=last_name,
                 profile_pic=weebhook_user.data.get("profile_image_url", None),
             ),
         )
