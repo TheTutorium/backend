@@ -85,7 +85,7 @@ def update(
     ):
         raise UnauthorizedException(
             user_id=student_id,
-            custom_message=f"Student with id {student_id} does not own this review with id {review_update.id}",
+            custom_message=f"Studentt with id {student_id} does not own this review with id {review_update.id}",
         )
 
     return ReviewManager.update(db, review_update=review_update)
