@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..database import Schema
 from ..models import WhiteboardModel
-from ..utils.Exceptions import BadRequestException, NotFoundException
+from ..utils.Exceptions import NotFoundException
 
 
 def create(db: Session, whiteboard_create: WhiteboardModel.WhiteboardCreate):
@@ -19,7 +19,13 @@ def create(db: Session, whiteboard_create: WhiteboardModel.WhiteboardCreate):
     return WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
 
 
-def get_by_booking_id(db: Session, booking_id: int):
+def delete(db: Session, booking_id: int):
+    whiteboard_db = get_by_booking_id(db, booking_id=booking_id, as_db=True)
+    db.delete(whiteboard_db)
+    db.flush()
+
+
+def get_by_booking_id(db: Session, booking_id: int, as_db: bool = False):
     whiteboard_db = (
         db.query(Schema.Whiteboard)
         .filter(Schema.Whiteboard.booking_id == booking_id)
@@ -32,22 +38,13 @@ def get_by_booking_id(db: Session, booking_id: int):
             custom_message=f"Booking with id {booking_id} does not have a whiteboard save",
         )
 
-    return WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
-
-
-def _does_booking_have_whiteboard(db: Session, booking_id: int):
-    try:
-        get_by_booking_id(db, booking_id=booking_id)
-        return True
-    except NotFoundException:
-        return False
+    return (
+        whiteboard_db if as_db else WhiteboardModel.Whiteboard.from_orm(whiteboard_db)
+    )
 
 
 def _create_checks(db: Session, booking_id: int):
-    if _does_booking_have_whiteboard(db, booking_id=booking_id):
-        raise BadRequestException(
-            entity="whiteboard",
-            id="",
-            operation="POST",
-            custom_message=f"Booking with id {booking_id} is already have a whiteboard.",
-        )
+    try:
+        delete(db, booking_id=booking_id)
+    except NotFoundException:
+        pass

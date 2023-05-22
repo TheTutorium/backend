@@ -84,7 +84,7 @@ def _create_checks(file: UploadFile, material_create: MaterialModel.MaterialCrea
             operation="POST",
             custom_message=f"Material name cannot be smaller than five characters. Description: {material_create.name}",
         )
-    if file.size is not None and file.size > 20000000:
+    if file.size is not None and file.size > 20_000_000:
         BadRequestException(
             entity="material",
             id="",

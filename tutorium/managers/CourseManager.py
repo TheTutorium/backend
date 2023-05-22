@@ -166,7 +166,7 @@ def _update_picture_check(db: Session, file: UploadFile):
             operation="UPDATE",
             custom_message="Picture name cannot be emtpy.",
         )
-    if file.size is not None and file.size > 10000000:
+    if file.size is not None and file.size > 10_000_000:
         BadRequestException(
             entity="course picture",
             id="",
