@@ -14,16 +14,7 @@ whiteboard_api_router = APIRouter(prefix="/whiteboards", tags=["whiteboards"])
 async def create(
     whiteboard_create: WhiteboardModel.WhiteboardCreate,
     db: Session = Depends(get_db),
-    user_id: str = Depends(authenticate),
 ):
-    if not BookingManager.is_user_in_booking(
-        db, booking_id=whiteboard_create.booking_id, user_id=user_id
-    ):
-        raise UnauthorizedException(
-            user_id=user_id,
-            custom_message=f"User with id {user_id} is not in this booking with id {whiteboard_create.booking_id}",
-        )
-
     return WhiteboardManager.create(db, whiteboard_create=whiteboard_create)
 
 
