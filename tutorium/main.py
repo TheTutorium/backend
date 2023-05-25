@@ -10,11 +10,16 @@ from tutorium.apis.ReviewApi import review_api_router
 from tutorium.apis.UserApi import user_api_router
 from tutorium.apis.WhiteboardApi import whiteboard_api_router
 from tutorium.database import Database, Schema
-from tutorium.utils.ExceptionHandlers import (bad_request_exception_handler,
-                                              not_found_exception_handler,
-                                              unauthorized_exception_handler)
-from tutorium.utils.Exceptions import (BadRequestException, NotFoundException,
-                                       UnauthorizedException)
+from tutorium.utils.ExceptionHandlers import (
+    bad_request_exception_handler,
+    not_found_exception_handler,
+    unauthorized_exception_handler,
+)
+from tutorium.utils.Exceptions import (
+    BadRequestException,
+    NotFoundException,
+    UnauthorizedException,
+)
 
 app = FastAPI()
 app.add_middleware(

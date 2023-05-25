@@ -1,8 +1,7 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from .Exceptions import (BadRequestException, NotFoundException,
-                         UnauthorizedException)
+from .Exceptions import BadRequestException, NotFoundException, UnauthorizedException
 
 
 def bad_request_exception_handler(request: Request, exc: BadRequestException):
