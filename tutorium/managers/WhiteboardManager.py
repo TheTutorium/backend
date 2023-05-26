@@ -29,6 +29,7 @@ def get_by_booking_id(db: Session, booking_id: int, as_db: bool = False):
     whiteboard_db = (
         db.query(Schema.Whiteboard)
         .filter(Schema.Whiteboard.booking_id == booking_id)
+        .order_by(Schema.Whiteboard.id.desc())
         .first()
     )
     if whiteboard_db is None:
